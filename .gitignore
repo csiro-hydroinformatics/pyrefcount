@@ -30,3 +30,6 @@ src/obj/
 *.user
 *.code-workspace
 .vscode/
+build/
+dist/
+refcount.egg-info/

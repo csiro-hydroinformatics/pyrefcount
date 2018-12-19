@@ -44,8 +44,8 @@ REQUIREMENTS = ['cffi']
 
 TEST_REQUIREMENTS = ['pytest',
                     #  'coveralls',
-                     'pytest-cov',
-                     'pytest-mpl'
+                    #  'pytest-cov',
+                    #  'pytest-mpl'
                      ]
 
 CLASSIFIERS = ['Development Status :: 3 - Alpha',
@@ -64,13 +64,13 @@ CLASSIFIERS = ['Development Status :: 3 - Alpha',
 setup(
     name='refcount',
     version=verstr,
-    description='A Python package for exploratory lithology analysis', 
+    description='A Python package for reference counting and interop with native pointers', 
     long_description=long_description,
     url='https://github.com/jmp75/pyrefcount',
-    author='Jean-Michel Perraud, Juan Castilla',
+    author='Jean-Michel Perraud',
     author_email='per202@csiro.au',
     classifiers=CLASSIFIERS,
-    keywords='lithology analysis',
+    keywords='interop python native-libraries reference-counting handle cffi',
     packages=['refcount'],
     install_requires=REQUIREMENTS,
     # extras_require={
