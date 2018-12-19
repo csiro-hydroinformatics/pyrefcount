@@ -25,13 +25,6 @@ This package has facilities primarily for managing from Python resources from na
 
 MIT-derived (see [License.txt](./LICENSE.txt))
 
-## Related work
-
-* list python packages with reference counters facilities
-* dynamic-interop
-* c-interop
-* generating C API glue code
-
 ## Installation
 
 ```sh
@@ -46,6 +39,10 @@ pip install refcount
 ```
 
 ## Documentation
+
+[Placeholder for a set of tutorials and examples]
+
+### Example
 
 A canonical illustration of the use of this package, based on one of the unit tests. Say we have a C++ library with objects and a C API:
 
@@ -127,5 +124,23 @@ class DogOwner(CustomCffiNativeHandle):
         self.dog.release()
         return True
 ```
+
+## Related work
+
+### Ancestry
+
+This python package `refcount` actually spawned from prior work for interoperability between C++, R and .NET. The port to Python was also influenced by work authored by Kevin Plastow and undertaken at the Australian Bureau of Meteorology for C/C++/Python interop using `cffi`.
+
+Readers may also want to look at:
+
+* a nuget package [dynamic-interop-dll](https://github.com/jmp75/dynamic-interop-dll) for .NET/native interop.
+* A set of mostly c++ software [tools for interop with C/C++](https://github.com/jmp75/rcpp-interop-commons)
+* A C# library for [generating interop glue code on top of C API glue code](https://github.com/jmp75/rcpp-wrapper-generation).
+
+### Other python packages
+
+While this present package was authored in part because no existing prior work could quite fit the need, there are packages that may better address your particular need:
+
+* [infi.pyutils](https://pypi.org/project/infi.pyutils/) constains a reference counting class.
 
 <!-- See here for the [complete refcount package documentation](https://refcount.readthedocs.io/en/latest/). -->
