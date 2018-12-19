@@ -13,6 +13,74 @@ from refcount.interop import *
 dir_path = os.path.join(pkg_dir, 'tests/test_native_library/x64/Debug')
 native_lib_path = os.path.join(dir_path, 'test_native_library.dll')
 
+
+def test_native_obj_ref_counting():
+    dog = Dog()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.add_ref()
+    assert 2 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    owner = DogOwner(dog)
+    assert 1 == owner.reference_count
+    assert 3 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.release()
+    assert 1 == owner.reference_count
+    assert 2 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.release()
+    assert 1 == owner.reference_count
+    assert 1 == owner.native_reference_count
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    assert not dog.is_invalid
+    owner.say_walk()
+    owner.release()
+    assert 0 == owner.reference_count
+    assert 0 == dog.reference_count
+    # Cannot check on the native ref count - deleted objects. 
+    # TODO think of a simple way to test these
+    #assert 0, owner.native_reference_count)
+    #assert 0, dog.native_reference_count)
+    assert dog.is_invalid
+    assert owner.is_invalid
+
+def test_cffi_native_handle_finalizers():
+    initDogCount = Dog.num_native_instances()
+    dog = Dog()
+    assert (initDogCount + 1) == Dog.num_native_instances()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    # if dog reference a new instance and we force garbage GC:
+    gc.collect()
+    dog = Dog()
+    # var gen = System.GC.GetGeneration(dog)
+    gc.collect()
+    # gen = System.GC.GetGeneration(dog)
+    gc.collect()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    nn = Dog.num_native_instances()
+    assert (initDogCount + 1) == nn
+    dog = None
+    gc.collect()
+    assert initDogCount == Dog.num_native_instances()
+
+def test_cffi_native_handle_dispose():
+    initDogCount = Dog.num_native_instances()
+    dog = Dog()
+    assert (initDogCount + 1) == Dog.num_native_instances()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.dispose()
+    assert initDogCount == Dog.num_native_instances()
+
+
+# test_native_obj_ref_counting()
+# test_cffi_native_handle_finalizers()
+# test_cffi_native_handle_dispose()
+
 ut_ffi = FFI()
 
 ut_ffi.cdef('''
@@ -100,81 +168,3 @@ class DogOwner(CustomCffiNativeHandle):
         return True
 
 
-def test_NativeObjectReferenceCounting():
-    dog = Dog()
-    assert 1 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    dog.add_ref()
-    assert 2 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    owner = DogOwner(dog)
-    assert 1 == owner.reference_count
-    assert 3 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    dog.release()
-    assert 1 == owner.reference_count
-    assert 2 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    dog.release()
-    assert 1 == owner.reference_count
-    assert 1 == owner.native_reference_count
-    assert 1 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    assert not dog.is_invalid
-    owner.say_walk()
-    owner.release()
-    assert 0 == owner.reference_count
-    assert 0 == dog.reference_count
-    # Cannot check on the native ref count - deleted objects. 
-    # TODO think of a simple way to test these
-    #assert 0, owner.native_reference_count)
-    #assert 0, dog.native_reference_count)
-    assert dog.is_invalid
-    assert owner.is_invalid
-
-#     /*
-#     # Try as i might i cannot seem to force 
-#     # garbage collection on this unit test.
-#     # If I change the execution point back in debug mode I can get 
-#     # an expected finalization, but otherwise, nope. 
-#     # This is puzzling. I have to give up on unit testing this. I do not see in 
-#     # any way how there could possibly be a mem leak with these.
-#     # 2017-10-24 On windows, I cannot get setting dog to null to trigger GC, somehow. 
-#     # At least not in debug mode from VS via the test explorer. Using netstandard2.0 as a target platform. i.e. what runtime??
-#     # A Watchpoint but the other tests suggest this is a false flag.
-#     # 2018-01- Same issue on linux
-def test_CffiNativeHandleFinalizers():
-    initDogCount = Dog.num_native_instances()
-    dog = Dog()
-    assert (initDogCount + 1) == Dog.num_native_instances()
-    assert 1 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    # if dog reference a new instance and we force garbage GC:
-    gc.collect()
-    dog = Dog()
-    # var gen = System.GC.GetGeneration(dog)
-    gc.collect()
-    # gen = System.GC.GetGeneration(dog)
-    gc.collect()
-    assert 1 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    nn = Dog.num_native_instances()
-    assert (initDogCount + 1) == nn
-    dog = None
-    gc.collect()
-    assert initDogCount == Dog.num_native_instances()
-
-# */
-def test_CffiNativeHandleDisposal():
-    initDogCount = Dog.num_native_instances()
-    dog = Dog()
-    assert (initDogCount + 1) == Dog.num_native_instances()
-    assert 1 == dog.reference_count
-    assert 1 == dog.native_reference_count
-    dog.dispose()
-    assert initDogCount == Dog.num_native_instances()
-
-
-# test_NativeObjectReferenceCounting()
-# test_CffiNativeHandleFinalizers()
-# test_CffiNativeHandleDisposal()

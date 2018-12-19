@@ -20,4 +20,4 @@ import pytest
 
 # To test as normal
 # pytest.main(["--mpl", "--cov", "refcount"])
-pytest.main(["refcount"])
+pytest.main(["."])
