@@ -7,12 +7,21 @@ import gc
 
 pkg_dir = os.path.join(os.path.dirname(__file__),'..')
 sys.path.append(pkg_dir)
+
 from refcount.interop import *
+from refcount.putils import library_short_filename
 
-# TODO deal with platform specific. Prob part of the refcount packge should include helper.
-dir_path = os.path.join(pkg_dir, 'tests/test_native_library/x64/Debug')
-native_lib_path = os.path.join(dir_path, 'test_native_library.dll')
 
+fname = library_short_filename("test_native_library")
+
+if(sys.platform == 'win32'):
+    dir_path = os.path.join(pkg_dir, 'tests/test_native_library/x64/Debug')
+else:
+    dir_path = os.path.join(pkg_dir, 'tests/test_native_library/build')
+
+native_lib_path = os.path.join(dir_path, fname)
+
+assert os.path.exists(native_lib_path)
 
 def test_native_obj_ref_counting():
     dog = Dog()
@@ -167,4 +176,18 @@ class DogOwner(CustomCffiNativeHandle):
         self.dog.release()
         return True
 
+def test_wrapper_helper_functions():
+    assert isinstance(wrap_cffi_native_handle(dict()), dict)
+    pointer = ut_dll.create_dog()
+    dog = wrap_cffi_native_handle(pointer, 'dog', ut_dll.release)
+    assert isinstance(dog, CffiNativeHandle)
+    assert dog.is_invalid == False
+    assert 1 == dog.reference_count
+    assert is_native_handle (dog, 'dog')
+    assert is_native_handle (dog, 'cat') == False
+    assert is_native_handle (dict()) == False
+    assert is_native_handle (1) == False
+    assert is_native_handle (1, 'cat') == False
+    assert pointer == unwrap_native_handle (dog, False)
+    dog = None
 

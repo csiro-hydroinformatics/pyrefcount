@@ -33,3 +33,5 @@ src/obj/
 build/
 dist/
 refcount.egg-info/
+.pytest_cache/
+

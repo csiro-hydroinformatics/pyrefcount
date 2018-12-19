@@ -64,7 +64,7 @@ class NativeHandle(ReferenceCounter):
         #
         """
         if not self._is_valid_handle(handle):
-            raise Error('The lib.handle argument is not a valid handle')
+            raise Exception('The lib.handle argument is not a valid handle')
         self._handle = handle
         self._ref_count = prior_ref_count + 1
 

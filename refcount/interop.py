@@ -111,10 +111,10 @@ class CffiNativeHandle(NativeHandle):
         """ Return the optional type identifier for the underlying native type """
         return self._type_id
 
-    @property
-    def obj(self):
-        """ Return the native object pointed to (cffi object) """
-        return self._handle[0]
+    # @property
+    # def obj(self):
+    #     """ Return the native object pointed to (cffi object) """
+    #     return self._handle
 
     def __str__(self):
         """ string representation """
@@ -153,6 +153,33 @@ class CffiNativeHandle(NativeHandle):
         self.__dispose_impl(True)
 
 
+class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
+    """ Reference counting wrapper class for CFFI pointers
+
+    Attributes:
+        _handle (object): The handle (e.g. cffi pointer) to the native resource.
+        _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
+    """
+    # """ a global function that can be called to release an external pointer """
+    # release_callback = None
+
+    def __init__(self, handle, release_callback, type_id=None, prior_ref_count = 0):
+        """initialize a reference counter for a resource handle, with an initial reference count.
+        
+        Args:
+            handle (object): The handle (e.g. cffi pointer) to the native resource.
+            type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+            prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
+        """
+        super(CallbackDeleteCffiNativeHandle, self).__init__(handle, type_id, prior_ref_count)
+        # if release_callback is None:
+        #     self._release_callback = CffiNativeHandle.release_callback
+        # else:
+        self._release_callback = release_callback
+        self._set_handle(handle, prior_ref_count)
+
+
 #' Create a wrapper around an externalptr
 #'
 #' Create a wrapper around an externalptr
@@ -161,9 +188,9 @@ class CffiNativeHandle(NativeHandle):
 #' @param type_id a string character that identifies the underlying type of this object.
 #' @return an ExternalObjRef if the input is an externalptr, or 'obj' otherwise.
 #' @export
-def wrap_native_handle (obj, type_id='', release_callback = None, owner=True):
+def wrap_cffi_native_handle (obj, type_id='', release_callback = None):
     if isinstance(obj, FFI.CData):
-        return CffiNativeHandle(obj, type_id=type_id, release_callback=release_callback, owner=owner) 
+        return CallbackDeleteCffiNativeHandle(obj, release_callback=release_callback, type_id=type_id) 
     else:
         return obj
 
@@ -177,20 +204,20 @@ def wrap_native_handle (obj, type_id='', release_callback = None, owner=True):
 #' @return an externalptr, or the input objRef unchanged if objRef is neither an  ExternalObjRef nor an externalptr and not in stringent mode
 #' @import methods
 #' @export
-def unwrap_native_handle (objRef, stringent=False):
+def unwrap_native_handle (obj_wrapper, stringent=False):
     # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters. 
     # Reassess approach, even if other C API function will still catch the issue of null ptrs.
-    if objRef is None:
+    if obj_wrapper is None:
         return None  
-    if isinstance(objRef, CffiNativeHandle):
-        return objRef.obj
-    if isinstance(obj, FFI.CData):
-        return obj
+    if isinstance(obj_wrapper, CffiNativeHandle):
+        return obj_wrapper.get_handle()
+    if isinstance(obj_wrapper, FFI.CData):
+        return obj_wrapper
     else:
         if stringent:
-            raise Error('argument is neither a CffiNativeHandle nor a CFFI external pointer')
+            raise Exception('argument is neither a CffiNativeHandle nor a CFFI external pointer')
         else:
-            return objRef
+            return obj_wrapper
 
 
 #' Update the PATH env var on windows, to locate an appropriate DLL dependency.
@@ -254,7 +281,7 @@ def unwrap_native_handle (objRef, stringent=False):
 #' @param type_id optional, the exact type of the ExternalObjRef to expect
 #' @return a logical value
 #' @export
-def is_native_handle (x, type_id):
+def is_native_handle (x, type_id=''):
     if not isinstance(x, CffiNativeHandle):
         return False
     if type_id is None or type_id == '':

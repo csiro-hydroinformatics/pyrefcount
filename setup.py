@@ -10,6 +10,8 @@ import re
 from codecs import open
 import os
 
+# TODO: credit original template setup from ???
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 verstr = 'unknown'
