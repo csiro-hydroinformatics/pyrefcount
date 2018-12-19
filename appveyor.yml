@@ -41,7 +41,7 @@ build_script:
     msbuild tests\test_native_library\test_native_library.sln /p:Platform="x64" /p:Configuration=Debug /consoleloggerparameters:ErrorsOnly
 
 test_script:
-  - "%PYTHON% run_tests.py"
+  - "%PYTHON%/python run_tests.py"
 
 # after_test:
 #   - ECHO "DONE!"
