@@ -43,7 +43,7 @@ except:
 REQUIREMENTS = ['cffi']
 
 TEST_REQUIREMENTS = ['pytest',
-                     'coveralls',
+                    #  'coveralls',
                      'pytest-cov',
                      'pytest-mpl'
                      ]

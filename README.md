@@ -6,6 +6,7 @@
 
 [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmp75/pyrefcount/blob/devel/LICENSE.txt)
 ![status](https://img.shields.io/badge/status-alpha-blue.svg)
+[![Build status](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master)
 
 <!-- Not sure I will go for coveralls: had issues with pyela:
 [![coverage](https://coveralls.io/repos/github/jmp75/pyrefcount/badge.svg?branch=master)](https://coveralls.io/github/jmp75/pyrefcount?branch=master) -->
@@ -45,5 +46,86 @@ pip install refcount
 ```
 
 ## Documentation
+
+A canonical illustration of the use of this package, based on one of the unit tests. Say we have a C++ library with objects and a C API:
+
+```C++
+#define TEST_DOG_PTR  testnative::dog*
+#define TEST_OWNER_PTR  testnative::owner*
+#define TEST_COUNTED_PTR  testnative::reference_counter*
+
+testnative::dog* create_dog();
+testnative::owner* create_owner(testnative::dog* d);
+void say_walk(testnative::owner* owner);
+void release(testnative::reference_counter* obj);
+// etc.
+```
+
+From the outside of the library the API is exported with opaque pointers `void*` (C structs pointers and native C99 types could be handled too).
+
+```C++
+void* create_dog();
+void* create_owner(void* d);
+void say_walk(void* owner);
+void release(void* obj);
+// etc.
+```
+
+Starting from the end in mind, we want a python user experience like so, hiding the low level details close to the C API:
+
+```py
+dog = Dog()
+owner = DogOwner(dog)
+owner.say_walk()
+print(dog.position)
+dog = None
+owner = None
+```
+
+This is doable with `refcount` and the `cffi` package. One possible design is:
+
+```py
+ut_ffi = cffi.FFI()
+
+ut_ffi.cdef('extern void* create_dog();')
+ut_ffi.cdef('extern void* create_owner( void* d);')
+ut_ffi.cdef('extern void say_walk( void* owner);')
+ut_ffi.cdef('extern void release( void* obj);')
+# etc.
+
+ut_dll = ut_ffi.dlopen('c:/path/to/test_native_library.dll', 1) # Lazy loading
+
+class CustomCffiNativeHandle(CffiNativeHandle):
+    def __init__(self, pointer, prior_ref_count = 0):
+        super(CustomCffiNativeHandle, self).__init__(pointer, type_id='', prior_ref_count = prior_ref_count)
+
+    def _release_handle(self):
+        ut_dll.release(self.get_handle());
+        return True
+
+class Dog(CustomCffiNativeHandle):
+    def __init__(self, pointer = None):
+        if pointer is None:
+            pointer = ut_dll.create_dog()
+        super(Dog, self).__init__(pointer)
+    # etc.
+
+class DogOwner(CustomCffiNativeHandle):
+
+    def __init__(self, dog):
+        super(DogOwner, self).__init__(None)
+        self._set_handle(ut_dll.create_owner(dog.get_handle()))
+        self.dog = dog
+        self.dog.add_ref()
+
+    def say_walk(self):
+        ut_dll.say_walk(self.get_handle())
+
+    def _release_handle(self):
+        super(DogOwner, self)._release_handle()
+        # super(DogOwner, self)._release_handle()
+        self.dog.release()
+        return True
+```
 
 <!-- See here for the [complete refcount package documentation](https://refcount.readthedocs.io/en/latest/). -->

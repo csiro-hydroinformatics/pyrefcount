@@ -19,4 +19,5 @@ import pytest
 # pytest.main(["--mpl-generate-path=tests/baseline", "--cov", "refcount"])
 
 # To test as normal
-pytest.main(["--mpl", "--cov", "refcount"])
+# pytest.main(["--mpl", "--cov", "refcount"])
+pytest.main(["refcount"])
