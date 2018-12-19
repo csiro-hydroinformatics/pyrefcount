@@ -4,33 +4,43 @@ from refcount.base import NativeHandle
 
 
 class CffiNativeHandle(NativeHandle):
-    ''' CffiNativeHandle  A base class for wrappers around objects in native libraries for easier memory management. 
+    """ Reference counting wrapper class for CFFI pointers
 
-    Say you have a C API as follows:
-    * `void* create_some_object();`
-    * `dispose_of_some_object(void* obj);`
-    and accessing it using Python and CFFI. Users would use the `calllib` function:
-    aLibPointer = callib('mylib', 'create_some_object');
-    but at some point when done need to dispose of it:
-    callib('mylib', 'dispose_of_some_object', aLibPointer);
-    In practice in real systems one quickly ends up with cases 
-    where it is unclear when to dispose of the object. 
-    If you call the `dispose_of_some_object` function more 
-    than once of too soon, you could easily crash the program.
-    CffiNativeHandle is designed to alleviate this headache by 
-    using Matlab native reference counting of `handle` classes to reliably dispose of objects. 
+    Attributes:
+        _handle (object): The handle (e.g. cffi pointer) to the native resource.
+        _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
+    """
 
-    This class is originally inspired from a class with a similar purpose in C#. See https://github.com/jmp75/dynamic-interop-dll
+    # Say you have a C API as follows:
+    # * `void* create_some_object();`
+    # * `dispose_of_some_object(void* obj);`
+    # and accessing it using Python and CFFI. Users would use the `calllib` function:
+    # aLibPointer = callib('mylib', 'create_some_object');
+    # but at some point when done need to dispose of it:
+    # callib('mylib', 'dispose_of_some_object', aLibPointer);
+    # In practice in real systems one quickly ends up with cases 
+    # where it is unclear when to dispose of the object. 
+    # If you call the `dispose_of_some_object` function more 
+    # than once of too soon, you could easily crash the program.
+    # CffiNativeHandle is designed to alleviate this headache by 
+    # using Matlab native reference counting of `handle` classes to reliably dispose of objects. 
 
-    '''
+    # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/jmp75/dynamic-interop-dll
 
     # """ a global function that can be called to release an external pointer """
     # release_callback = None
 
-    """ Thin wrapper around a native pointer (cffi object) """
-    def __init__(self, ptr, type_id='', prior_ref_count = 0):
-        super(CffiNativeHandle, self).__init__(ptr, prior_ref_count)
-        # TODO checks on ptr
+    def __init__(self, handle, type_id=None, prior_ref_count = 0):
+        """initialize a reference counter for a resource handle, with an initial reference count.
+        
+        Args:
+            handle (object): The handle (e.g. cffi pointer) to the native resource.
+            type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+            prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
+        """
+        super(CffiNativeHandle, self).__init__(handle, prior_ref_count)
+        # TODO checks on handle
         self._type_id = type_id
         self._finalizing = False
         self._handle = None
@@ -38,24 +48,24 @@ class CffiNativeHandle(NativeHandle):
         #     self._release_callback = CffiNativeHandle.release_callback
         # else:
         #     self._release_callback = release_callback
-        if ptr is None:
+        if handle is None:
             return # defer setting handle to the inheritor.
-        self._set_handle(ptr, prior_ref_count)
+        self._set_handle(handle, prior_ref_count)
 
     def _is_valid_handle(self, h):
-        # _is_valid_handle - Test whether an argument is a valid handle (lib.pointer) for this object.
-        # Returns a logical.
-        # Parameters:
-        #   h:
-        # The handle, value of the pointer to the native object
+        """ Checks if the handle is a CFFI CData pointer.
+
+        Args:
+            handle (object): The handle (e.g. cffi pointer) to the native resource.
+        """
         return isinstance(h, FFI.CData)
 
     def __dispose_impl(self, decrement):
-        # __dispose_impl - An implementation of the dispose method, to 
-        # avoid cyclic method calls.
-        # 
-        # Parameters:
-        # decrement - logical indicating whether the reference count should be decreased.
+        """ An implementation of the dispose method in a 'Dispose' sw pattern. Avoids cyclic method calls.
+
+        Args:
+            decrement (bool): indicating whether the reference count should be decreased (possible future uses)
+        """
         if self.disposed:
             return
         if decrement:
@@ -66,54 +76,30 @@ class CffiNativeHandle(NativeHandle):
                 # if (!_finalizing)
                 # GC.SuppressFinalize(this)
          
-    # disposed - logical; has the native object and memory already been disposed of.        
     @property
     def disposed(self):
+        """ bool: has the native object and memory already been disposed of.        
+        """
         return self._handle is None
 
-    # is_invalid - logical; in practice synonym with disposed; 
-    # has the native object and memory already been disposed of.        
     @property
     def is_invalid(self):
+        """ bool: is the underlying handle valid? In practice synonym with the disposed attribute.
+        """
         return self._handle is None
 
     def _release_handle(self):
+        """ Must of overriden. Method disposing of the object pointed to by the CFFI pointer (handle)
+        """
         # See also https://stackoverflow.com/questions/4714136/how-to-implement-virtual-methods-in-python
         # May want to make this abstract using ABC - we'll see.
         raise NotImplementedError()
 
-    def _set_handle(self, pointer, prior_ref_count=0):
-        # _set_handle - Sets a handle.
-        #
-        # Parameters:
-        #   pointer:
-        # The handle (lib.pointer), value of the pointer to the native object
-        #
-        #   prior_ref_count:
-        # (Optional) Number of pre-existing references for 
-        # the native object. Almost always 0 except in unusual, advanced situations.
-        #
-        # Exceptions:
-        # error message when a pointer is a Zero pointer .
-        #
-        # Remarks:
-        # If a native object was created prior to its use by Matlab, its lifetime may need
-        # to extend beyong its use from Matlab, hence the provision for an initial reference 
-        # count more than 0. In practice the scenario is very unusual.
-        if not self._is_valid_handle(pointer):
-            raise Error('The lib.pointer argument is not a valid handle')
-        self._handle = pointer
-        self._ref_count = prior_ref_count + 1
+    # @property
+    # def ptr(self):
+    #     """ Return the pointer to a cffi object """
+    #     return self._handle
 
-    @property
-    def ptr(self):
-        """ Return the pointer to a cffi object """
-        return self._handle
-
-    @property
-    def type_id(self):
-        """ Return the optional type identifier for the underlying native type """
-        return self._type_id
 
     # @ptr.setter
     # def ptr(self, value):
@@ -121,17 +107,27 @@ class CffiNativeHandle(NativeHandle):
     #     self._handle = value
 
     @property
+    def type_id(self):
+        """ Return the optional type identifier for the underlying native type """
+        return self._type_id
+
+    @property
     def obj(self):
         """ Return the native object pointed to (cffi object) """
         return self._handle[0]
 
     def __str__(self):
-        return 'Handle to a native pointer of type id "' + self.type_id + '"'
+        """ string representation """
+        if self.type_id is None or self.type_id == '':
+            return 'CFFI pointer handle to a native pointer'
+        return 'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
 
     def __repr__(self):
+        """ string representation """
         return str(self)
 
     def __del__(self):
+        """ destructor, triggering the release of the underlying handled resource if the reference count is 0 """
         if not self._handle is None:
             # if not self._release_callback is None:
             # Protect against accessing properties
@@ -140,7 +136,8 @@ class CffiNativeHandle(NativeHandle):
             self.release()
 
     def dispose(self):
-        # dispose - If the reference counts allows it, release the resource refered to by this handle.
+        """ Disposing of the object pointed to by the CFFI pointer (handle) if the reference counts allows it.
+        """
         self.__dispose_impl(True)
 
     def get_handle(self):
@@ -151,10 +148,9 @@ class CffiNativeHandle(NativeHandle):
         return self._handle
 
     def release(self):
-        # release - Manually decrements the reference counter. Triggers disposal if count 
-        # is down to zero.
+        """ Manually decrements the reference counter. Triggers disposal if reference count is down to zero.
+        """
         self.__dispose_impl(True)
-
 
 
 #' Create a wrapper around an externalptr
@@ -169,7 +165,7 @@ def wrap_native_handle (obj, type_id='', release_callback = None, owner=True):
     if isinstance(obj, FFI.CData):
         return CffiNativeHandle(obj, type_id=type_id, release_callback=release_callback, owner=owner) 
     else:
-        return obj  
+        return obj
 
 
 #' Gets an externalptr wrapped in an ExternalObjRef

@@ -3,6 +3,7 @@ import numpy as np
 import datetime as dt
 import sys
 from datetime import datetime
+import gc
 
 pkg_dir = os.path.join(os.path.dirname(__file__),'..')
 sys.path.append(pkg_dir)
@@ -69,7 +70,7 @@ class Dog(CustomCffiNativeHandle):
         return ut_dll.get_dog_refcount(self.get_handle())
 
     @staticmethod
-    def NumNativeInstances():
+    def num_native_instances():
         return ut_dll.num_dogs()
 
 
@@ -86,7 +87,7 @@ class DogOwner(CustomCffiNativeHandle):
         return ut_dll.get_owner_refcount(self.get_handle())
 
     @staticmethod
-    def NumNativeInstances():
+    def num_native_instances():
         return ut_dll.num_owners()
 
     def say_walk(self):
@@ -99,38 +100,37 @@ class DogOwner(CustomCffiNativeHandle):
         return True
 
 
-# def test_NativeObjectReferenceCounting():
-
-dog = Dog()
-assert 1 == dog.reference_count
-assert 1 == dog.native_reference_count
-dog.add_ref()
-assert 2 == dog.reference_count
-assert 1 == dog.native_reference_count
-owner = DogOwner(dog)
-assert 1 == owner.reference_count
-assert 3 == dog.reference_count
-assert 1 == dog.native_reference_count
-dog.release()
-assert 1 == owner.reference_count
-assert 2 == dog.reference_count
-assert 1 == dog.native_reference_count
-dog.release()
-assert 1 == owner.reference_count
-assert 1 == owner.native_reference_count
-assert 1 == dog.reference_count
-assert 1 == dog.native_reference_count
-assert not dog.is_invalid
-owner.say_walk()
-owner.release()
-assert 0 == owner.reference_count
-assert 0 == dog.reference_count
-# Cannot check on the native ref count - deleted objects. 
-# TODO think of a simple way to test these
-#assert 0, owner.native_reference_count)
-#assert 0, dog.native_reference_count)
-assert dog.is_invalid
-assert owner.is_invalid
+def test_NativeObjectReferenceCounting():
+    dog = Dog()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.add_ref()
+    assert 2 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    owner = DogOwner(dog)
+    assert 1 == owner.reference_count
+    assert 3 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.release()
+    assert 1 == owner.reference_count
+    assert 2 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.release()
+    assert 1 == owner.reference_count
+    assert 1 == owner.native_reference_count
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    assert not dog.is_invalid
+    owner.say_walk()
+    owner.release()
+    assert 0 == owner.reference_count
+    assert 0 == dog.reference_count
+    # Cannot check on the native ref count - deleted objects. 
+    # TODO think of a simple way to test these
+    #assert 0, owner.native_reference_count)
+    #assert 0, dog.native_reference_count)
+    assert dog.is_invalid
+    assert owner.is_invalid
 
 #     /*
 #     # Try as i might i cannot seem to force 
@@ -143,69 +143,38 @@ assert owner.is_invalid
 #     # At least not in debug mode from VS via the test explorer. Using netstandard2.0 as a target platform. i.e. what runtime??
 #     # A Watchpoint but the other tests suggest this is a false flag.
 #     # 2018-01- Same issue on linux
-#     [Fact]
-#     public void TestCffiNativeHandleFinalizers()
-#     {
-#         NativeTestLib lib = new NativeTestLib();
-#         int initDogCount = Dog.NumNativeInstances;
+def test_CffiNativeHandleFinalizers():
+    initDogCount = Dog.num_native_instances()
+    dog = Dog()
+    assert (initDogCount + 1) == Dog.num_native_instances()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    # if dog reference a new instance and we force garbage GC:
+    gc.collect()
+    dog = Dog()
+    # var gen = System.GC.GetGeneration(dog)
+    gc.collect()
+    # gen = System.GC.GetGeneration(dog)
+    gc.collect()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    nn = Dog.num_native_instances()
+    assert (initDogCount + 1) == nn
+    dog = None
+    gc.collect()
+    assert initDogCount == Dog.num_native_instances()
 
-#         Dog dog = new Dog();
-#         assert initDogCount + 1, Dog.NumNativeInstances);
-#         assert 1, dog.reference_count);
-#         assert 1, dog.native_reference_count);
-#         # if dog reference a new instance and we force garbage GC:
-#         CallGC();
-#         dog = new Dog();
-#         var gen = System.GC.GetGeneration(dog);
-#         CallGC();
-#         gen = System.GC.GetGeneration(dog);
-#         CallGC();
-#         assert 1, dog.reference_count);
-#         assert 1, dog.native_reference_count);
-#         assert initDogCount + 2, Dog.NumNativeInstances);
-#         # if dog reference a new instance and we force garbage GC:
-#         dog = new Dog();
-#         CallGC();
-#         CallGC();
-#         assert 1, dog.reference_count);
-#         assert 1, dog.native_reference_count);
-#         assert initDogCount + 2, Dog.NumNativeInstances);
-
-#         dog = null;
-#         CallGC();
-#         assert initDogCount, Dog.NumNativeInstances);
-#     }
 # */
-#     [Fact]
-#     public void TestCffiNativeHandleDisposal()
-#     {
-#         NativeTestLib lib = new NativeTestLib();
-#         int initDogCount = Dog.NumNativeInstances;
-
-#         Dog dog = new Dog();
-#         assert initDogCount + 1, Dog.NumNativeInstances);
-#         assert 1, dog.reference_count);
-#         assert 1, dog.native_reference_count);
-#         dog.Dispose();
-#         assert initDogCount, Dog.NumNativeInstances);
-#     }
-
-#     #/ <summary>
-#     #/ Use intended only for unit tests.
-#     #/ </summary>
-#     public static long CallGC()
-#     {
-#         for (int i = 0; i < GC.MaxGeneration * 2; i++)
-#         {
-#             GC.Collect();
-#             GC.WaitForPendingFinalizers();
-#         }
-#         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
-#         GC.WaitForPendingFinalizers();
-#         return GC.GetTotalMemory(true);
-#     }
-
-# }
-# }
+def test_CffiNativeHandleDisposal():
+    initDogCount = Dog.num_native_instances()
+    dog = Dog()
+    assert (initDogCount + 1) == Dog.num_native_instances()
+    assert 1 == dog.reference_count
+    assert 1 == dog.native_reference_count
+    dog.dispose()
+    assert initDogCount == Dog.num_native_instances()
 
 
+# test_NativeObjectReferenceCounting()
+# test_CffiNativeHandleFinalizers()
+# test_CffiNativeHandleDisposal()

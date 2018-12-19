@@ -1,31 +1,51 @@
 
 class ReferenceCounter(object):
+    """A base class for reference counters
+
+    Attributes:
+        reference_count (int): property getter, reference count
+    """
     def __init__(self, prior_ref_count = 0):
+        """initialize this with an initial reference count.
+        
+        Args:
+            prior_ref_count (int): the initial reference count. Default 0 if this object is sole responsible for the lifecycle of the resource.
+        """
         self._ref_count = prior_ref_count + 1
 
-    # reference_count - The number of references to the underlying object.
-    # In practice this would almost always be 0 or 1 and users should not need to take use this. 
     @property
     def reference_count(self):
+        """Get the current reference count
+        """
         return self._ref_count
 
     def add_ref(self):
-        # add_ref - Manually increments the reference counter.
-        # This is very unusual you would need to call this method. 
+        """Manually increment the reference count. Users should rarely need this unless they have dependencies across reference handles. 
+        """
         self._ref_count = self._ref_count + 1
 
     def decrement_ref(self):
+        """Manually decrement the reference count. Users should rarely need this unless they have dependencies across reference handles.
+        """
         self._ref_count = self._ref_count - 1
 
 
 class NativeHandle(ReferenceCounter):
-    ''' NativeHandle  A base class for wrappers around objects in native libraries for easier memory management. 
-    '''
+    ''' NativeHandle  A base class for wrappers around otherwise "unmanaged" resources e.g. in a native library.
 
-    """ Thin wrapper around a native pointer (cffi object) """
+    Attributes:
+        _handle (object): The handle (e.g. cffi pointer) to the native resource.
+        _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
+    '''
     def __init__(self, handle=None, prior_ref_count = 0):
+        """initialize a reference counter for a resource handle, with an initial reference count.
+        
+        Args:
+            handle (object): The handle (e.g. cffi pointer) to the native resource.
+            prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
+        """
         super(NativeHandle, self).__init__(prior_ref_count)
-        # TODO checks on ptr
+        # TODO checks 
         self._finalizing = False
         self._handle = None
         if handle is None:
@@ -33,29 +53,27 @@ class NativeHandle(ReferenceCounter):
         self._set_handle(handle, prior_ref_count)
 
     def _set_handle(self, handle, prior_ref_count=0):
-        # _set_handle - Sets a handle.
-        #
-        # Parameters:
-        #   handle:
-        # The handle (lib.handle), value of the handle to the native object
-        #
-        #   prior_ref_count:
-        # (Optional) Number of pre-existing references for 
-        # the native object. Almost always 0 except in unusual, advanced situations.
-        #
+        """ Sets a handle, performing checks on its acceptability by the inheriting class.
+
+        Args:
+            handle (object): The handle (e.g. cffi pointer) to the native resource.
+            prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
+
         # Exceptions:
         # error message when a handle is a Zero handle .
         #
-        # Remarks:
-        # If a native object was created prior to its use by Matlab, its lifetime may need
-        # to extend beyong its use from Matlab, hence the provision for an initial reference 
-        # count more than 0. In practice the scenario is very unusual.
+        """
         if not self._is_valid_handle(handle):
             raise Error('The lib.handle argument is not a valid handle')
         self._handle = handle
         self._ref_count = prior_ref_count + 1
 
     def _is_valid_handle(self, handle):
+        """ Checks a handle on its acceptability by the inheriting class. Must be overriden.
+
+        Args:
+            handle (object): The handle (e.g. cffi pointer) to the native resource.
+        """
         # See also https://stackoverflow.com/questions/4714136/how-to-implement-virtual-methods-in-python
         # May want to make this abstract using ABC - we'll see.
         raise NotImplementedError()
