@@ -1,6 +1,4 @@
 import os
-import numpy as np
-import datetime as dt
 import sys
 from datetime import datetime
 import gc
