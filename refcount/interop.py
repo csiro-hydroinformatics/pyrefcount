@@ -160,6 +160,7 @@ class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
         _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
+        _release_callback (callable): function to call on deleting this wrapper. The function should have one argument accepting the object _handle.
     """
     # """ a global function that can be called to release an external pointer """
     # release_callback = None
@@ -169,6 +170,7 @@ class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
         
         Args:
             handle (object): The handle (e.g. cffi pointer) to the native resource.
+            release_callback (callable): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
             type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
             prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
@@ -180,31 +182,47 @@ class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
         self._set_handle(handle, prior_ref_count)
 
 
-#' Create a wrapper around an externalptr
-#'
-#' Create a wrapper around an externalptr
-#'
-#' @param obj the object to wrap, if this is an externalptr
-#' @param type_id a string character that identifies the underlying type of this object.
-#' @return an ExternalObjRef if the input is an externalptr, or 'obj' otherwise.
-#' @export
-def wrap_cffi_native_handle (obj, type_id='', release_callback = None):
+    def _release_handle(self):
+        """ Manually decrements the reference counter. Triggers disposal if reference count is down to zero.
+        """
+        if self._release_callback is not None:
+            self._release_callback(self._handle)
+
+def wrap_cffi_native_handle(obj, type_id='', release_callback = None):
+    """ Create a ref counting wrapper around an object if this is a CFFI pointers
+
+    Args:
+        obj (object): An object, which will be wrapped if this is a CFFI pointer, i.e. an instance of `FFI.CData`
+        release_callback (callable): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
+        type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+    """
     if isinstance(obj, FFI.CData):
         return CallbackDeleteCffiNativeHandle(obj, release_callback=release_callback, type_id=type_id) 
     else:
         return obj
 
+def is_cffi_native_handle(x, type_id=''):
+    """ Checks whether an object is a ref counting wrapper around a CFFI pointer
 
-#' Gets an externalptr wrapped in an ExternalObjRef
-#'
-#' Gets an externalptr wrapped in an ExternalObjRef
-#'
-#' @param objRef the presumed ExternalObjRef to unwrap
-#' @param stringent if TRUE, an error is raised if objRef is neither an  ExternalObjRef nor an externalptr.
-#' @return an externalptr, or the input objRef unchanged if objRef is neither an  ExternalObjRef nor an externalptr and not in stringent mode
-#' @import methods
-#' @export
-def unwrap_native_handle (obj_wrapper, stringent=False):
+    Args:
+        x (object): object to test, presumed to be an instance of `CffiNativeHandle`
+        type_id (str or None): Optional identifier for the type of underlying resource being wrapped.
+    """
+    if x is None:
+        return False
+    if not isinstance(x, CffiNativeHandle):
+        return False
+    if type_id is None or type_id == '':
+        return True
+    return (x.type_id == type_id)
+
+def unwrap_cffi_native_handle(obj_wrapper, stringent=False):
+    """ Unwrap a ref counting wrapper around an object if this is a CffiNativeHandle
+
+    Args:
+        obj_wrapper (object or None): An object, which will be unwrapped if this is a CFFI pointer, i.e. an instance of `FFI.CData`
+        stringent (bool): default Faulse; if True an error is raised if obj_wrapper is neither None, a CffiNativeHandle nor an FFI.CData.
+    """
     # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters. 
     # Reassess approach, even if other C API function will still catch the issue of null ptrs.
     if obj_wrapper is None:
@@ -219,87 +237,26 @@ def unwrap_native_handle (obj_wrapper, stringent=False):
         else:
             return obj_wrapper
 
+def cffi_arg_error_external_obj_type(x, expected_type_id):
+    """Build an error message that an unexpected object is in lieu of an expected refcount external ref object.
 
-#' Update the PATH env var on windows, to locate an appropriate DLL dependency.
-#' 
-#' Update the PATH env var on windows. This is a function meant to be used by packages' '.onLoad' functions. 
-#' Looks in another env var, then depending on whether the current process is 32 or 64 bits build a path and looks for a specified DLL. 
-#' 
-#' @param envVarName the environment variable to look for a root for architecture dependent libraries. 
-#' @param libfilename name of the DLL sought and that should be present in the architecture (32/64) subfolder.
-#' @import stringr
-#' @return a character vector, the startup message string resulting from the update process.
-#' @export
-# updatePathWindows (envVarName='LIBRARY_PATH', libfilename='mylib.dll'):
-#   startupMsg <- ''
-#   if(Sys.info()['sysname'] == 'Windows') 
-  
-#     pathSep <- ';'
-#     sharedLibPaths <- Sys.getenv(envVarName)
-#     if(sharedLibPaths!=''):
-#       startupMsg <- appendStartupMsg(paste0('Found env var ', envVarName, '=', sharedLibPaths), startupMsg)
-#       rarch <- Sys.getenv('R_ARCH')
-#       subfolder <- ifelse(rarch=='/x64', '64', '32')
-#       sharedLibPathsVec <- stringr::str_split(sharedLibPaths, pathSep)
-#       if(is.list(sharedLibPathsVec)) sharedLibPathsVec <- sharedLibPathsVec[[1]]
-#       priorPathEnv <- Sys.getenv('PATH')
-#       priorPaths <- stringr::str_split(priorPathEnv,pathSep)
-#       if(is.list(priorPaths)) priorPaths <- priorPaths[[1]]
-#       stopifnot(is.character(priorPaths))
-#       priorPaths <- tolower(priorPaths)
-#       newPaths <- priorPaths
-#       for(sharedLibPath in sharedLibPathsVec):
-#         if(file.exists(sharedLibPath)):
-#           fullpath <- base::normalizePath(file.path(sharedLibPath, subfolder))
-#           if(file.exists(fullpath)):
-#             if(!(tolower(fullpath) %in% priorPaths)):
-#               startupMsg <- appendStartupMsg(paste('Appending to the PATH env var:', fullpath), startupMsg)
-#               newPaths <- c(newPaths, fullpath)
-#              else 
-#               startupMsg <- appendStartupMsg(paste('Path', fullpath, 'already found in PATH environment variable'), startupMsg)
-            
-          
-        
-      
-#       Sys.setenv(PATH=paste(newPaths, sep=pathSep, collapse=pathSep))
-    
-#     libfullname <- base::normalizePath(Sys.which(libfilename))
-#     if(libfullname=='')
-#       startupMsg <- appendStartupMsg(paste0('WARNING: Sys.which("',libfilename,'") did not return a file path'), startupMsg)
-#      else 
-#       startupMsg <- appendStartupMsg(paste0('first ',libfilename,' shared library in PATH: ', libfullname), startupMsg)
-    
-  
-#   return(startupMsg)
+    Args:
+        x (object): object passed as an argument to a function but with an unexpected type or type id.
+        expected_type_id (str or None): Expected identifier for the type of underlying resource being wrapped.
 
+    Returns: (str): the error message
+    """
+    if x is None:
+        return "Expected a 'CffiNativeHandle' but instead got 'None'"
+    if not is_cffi_native_handle(x):
+        return "Expected a 'CffiNativeHandle' but instead got object of type '{0}'".format(str(type(x)))
+    else:
+        return "Expected a 'CffiNativeHandle' with underlying type id '{0}' but instead got object of type id '{1}'".format(expected_type_id, x.type_id)
 
-#' Is an object a refcount wrapper
-#'
-#' Is an object a refcount wrapper, and if so of a specified type_id
-#'
-#' @param x The object to check: is it an ExternalObjRef
-#' @param type_id optional, the exact type of the ExternalObjRef to expect
-#' @return a logical value
-#' @export
-def is_native_handle (x, type_id=''):
-    if not isinstance(x, CffiNativeHandle):
-        return False
-    if type_id is None or type_id == '':
-        return True
-    return (x.type_id == type_id)
+# Maybe, pending use cases:
+# def checked_unwrap_cffi_native_handle (obj_wrapper, stringent=False):
+#     if not is_cffi_native_handle (obj_wrapper, expected_type_id):
+#         raise Exception(cffi_arg_error_external_obj_type(obj_wrapper, expected_type_id)
+#     else:
+#         return unwrap_cffi_native_handle (obj_wrapper, stringent=True)
 
-
-#' Build an error message that an unexpected object is in lieu of an expected refcount external ref object.
-#'
-#' Build an error message that an unexpected object is in lieu of an expected refcount external ref object.
-#'
-#' @param x actual object that is not of the expected type or underlying type for the external pointer.
-#' @param expectedType expected underlying type for the ExternalObj
-#' @return a character, the error message
-#' @export
-# argErrorExternalObjType (x, expectedType):
-#   if(!isExternalObjRef(x)):
-#     return(paste0('Expected type "', expectedType, '" but got object of type "', typeof(x), '" and class "', class(x), '"' ))
-#    else 
-#     return(paste0('Expected ExternalObj type "', expectedType, '" but got ExternalObj type "', x@type))
-  

@@ -181,11 +181,15 @@ def test_wrapper_helper_functions():
     assert isinstance(dog, CffiNativeHandle)
     assert dog.is_invalid == False
     assert 1 == dog.reference_count
-    assert is_native_handle (dog, 'dog')
-    assert is_native_handle (dog, 'cat') == False
-    assert is_native_handle (dict()) == False
-    assert is_native_handle (1) == False
-    assert is_native_handle (1, 'cat') == False
-    assert pointer == unwrap_native_handle (dog, False)
+    assert is_cffi_native_handle (dog, 'dog')
+    assert is_cffi_native_handle (dog, 'cat') == False
+    assert is_cffi_native_handle (dict()) == False
+    assert is_cffi_native_handle (1) == False
+    assert is_cffi_native_handle (1, 'cat') == False
+    assert pointer == unwrap_cffi_native_handle (dog, False)
+    msg = cffi_arg_error_external_obj_type(1, '')
+    assert "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'" == msg
+    msg = cffi_arg_error_external_obj_type(dog, 'cat')
+    assert "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got object of type id 'dog'" == msg
     dog = None
 
