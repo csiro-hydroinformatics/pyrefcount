@@ -2,10 +2,7 @@
 
 A Python package for reference counting native resources
 
-[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmp75/pyrefcount/blob/devel/LICENSE.txt)
-![status](https://img.shields.io/badge/status-alpha-blue.svg)
- master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master)
- devel: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/devel?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/devel)
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmp75/pyrefcount/blob/devel/LICENSE.txt) ![status](https://img.shields.io/badge/status-alpha-blue.svg) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) devel: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/devel?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/devel)
 
 This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, it is practically complicated to properly do so and not end up with memory leak or crashes. This package aims to offer structured options for managing external native resources - I could not locate a pypi package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
 

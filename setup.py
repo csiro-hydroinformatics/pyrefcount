@@ -26,16 +26,21 @@ else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
-    long_description = long_description.replace("\r","") # Do not forget this line
-except:
-    print("Pandoc not found. Long_description conversion failure.")
-    # Get the long description from the README file
-    with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-        long_description = f.read()
+# try:
+#     import pypandoc
+#     long_description = pypandoc.convert('README.md', 'rst')
+#     long_description = long_description.replace("\r","") # Do not forget this line
+#     long_description_content_type='text/markdown'
+# except:
+#     print("Pandoc not found. Long_description conversion failure.")
+#     # Get the long description from the README file
+#     with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+#         long_description = f.read()
+#         long_description_content_type='text/markdown'
 
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+    long_description_content_type='text/markdown'
 
 
 # with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r") as f:
@@ -68,6 +73,7 @@ setup(
     version=verstr,
     description='A Python package for reference counting and interop with native pointers', 
     long_description=long_description,
+    long_description_content_type=long_description_content_type,
     url='https://github.com/jmp75/pyrefcount',
     author='Jean-Michel Perraud',
     author_email='per202@csiro.au',

@@ -32,5 +32,32 @@ cd ~/src/github_jm/pyrefcount
 rm dist/*
 python3 setup.py sdist bdist_wheel
 rm dist/*.tar
+```
+
+Importantly to not end up with incorrect display of the readme:
+
+```sh
+twine check dist/*
+```
+
+```sh
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+```
+
+Then and only then:
+
+```sh
 twine upload dist/*
+```
+
+## Troubleshooting
+
+```sh
+pandoc -f markdown -t rst README.md  > README.rst
+```
+
+Can view with the `retext` program (did not find VScode RST extensions working, or giving out blank output if not, perhaps)
+
+```sh
+python setup.py check --restructuredtext
 ```
