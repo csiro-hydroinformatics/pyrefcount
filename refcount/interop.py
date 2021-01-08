@@ -61,10 +61,10 @@ class CffiNativeHandle(NativeHandle):
         return isinstance(h, FFI.CData)
 
     def __dispose_impl(self, decrement):
-        """ An implementation of the dispose method in a 'Dispose' sw pattern. Avoids cyclic method calls.
+        """ An implementation of the dispose method in a 'Dispose' software pattern. Avoids cyclic method calls.
 
         Args:
-            decrement (bool): indicating whether the reference count should be decreased (possible future uses)
+            decrement (bool): indicating whether the reference count should be decreased. It should almost always be True except in very unusual use cases (argument is for possible future use).
         """
         if self.disposed:
             return
@@ -78,7 +78,7 @@ class CffiNativeHandle(NativeHandle):
          
     @property
     def disposed(self):
-        """ bool: has the native object and memory already been disposed of.        
+        """ bool: has the native object and memory already been disposed of.
         """
         return self._handle is None
 
@@ -88,12 +88,13 @@ class CffiNativeHandle(NativeHandle):
         """
         return self._handle is None
 
-    def _release_handle(self):
+    def _release_handle(self) -> bool:
         """ Must of overriden. Method disposing of the object pointed to by the CFFI pointer (handle)
         """
         # See also https://stackoverflow.com/questions/4714136/how-to-implement-virtual-methods-in-python
         # May want to make this abstract using ABC - we'll see.
         raise NotImplementedError()
+        return False
 
     # @property
     # def ptr(self):
@@ -182,11 +183,16 @@ class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
         self._set_handle(handle, prior_ref_count)
 
 
-    def _release_handle(self):
+    def _release_handle(self) -> bool:
         """ Manually decrements the reference counter. Triggers disposal if reference count is down to zero.
         """
+        if self._handle is None:
+            return False
+        if self._release_callback is None:
+            return False
         if self._release_callback is not None:
-            self._release_callback(self._handle)
+            self._release_callback(self._handle) # TODO are trapped exceptions acceptable here? 
+            return True
 
 def wrap_cffi_native_handle(obj, type_id='', release_callback = None):
     """ Create a ref counting wrapper around an object if this is a CFFI pointers

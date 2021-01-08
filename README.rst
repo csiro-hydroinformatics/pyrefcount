@@ -99,7 +99,7 @@ design is:
         def __init__(self, pointer, prior_ref_count = 0):
             super(CustomCffiNativeHandle, self).__init__(pointer, type_id='', prior_ref_count = prior_ref_count)
 
-        def _release_handle(self):
+        def _release_handle(self) -> bool:
             ut_dll.release(self.get_handle())
             return True
 
@@ -121,7 +121,7 @@ design is:
         def say_walk(self):
             ut_dll.say_walk(self.get_handle())
 
-        def _release_handle(self):
+        def _release_handle(self) -> bool:
             super(DogOwner, self)._release_handle()
             # super(DogOwner, self)._release_handle()
             self.dog.release()
