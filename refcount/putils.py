@@ -8,9 +8,20 @@ from typing import List, Union
 '''This module will host features similar to https://github.com/rdotnet/dynamic-interop-dll/blob/master/DynamicInterop/PlatformUtility.cs
 '''
 
-def library_short_filename(library_name):
+def library_short_filename(library_name:str) -> str:
+    """Based on the library name, return the platform-specific expected library short file name
+
+    Args:
+        library_name (str): name of the library, for instance 'R' for 'libR.so'
+
+    Raises:
+        Exception: invalid argument
+
+    Returns:
+        str: expected short file name for the library, for this platform
+    """    
     if library_name is None:
-        raise Exception("library_name")
+        raise Exception("library_name cannot be None")
     else:
         if(sys.platform == 'win32'):
             return '{}.dll'.format(library_name)
@@ -34,7 +45,17 @@ def find_full_path(name, dir_path = None):
         libpath = name
     return libpath
 
-def prepend_path_env (added_paths:Union[str,List[str]], subfolder:str=None, to_env='PATH'):    
+def prepend_path_env (added_paths:Union[str,List[str]], subfolder:str=None, to_env:str='PATH') -> str:
+    """Build a new list of directory paths, prepending prior to an existing env var with paths.
+
+    Args:
+        added_paths (Union[str,List[str]]): paths prepended
+        subfolder (str, optional): Optional subfolder name to append to each in path prepended. Useful for 64/32 bits variations. Defaults to None.
+        to_env (str, optional): Environment variable with existing Paths to start with. Defaults to 'PATH'.
+
+    Returns:
+        str: Content (set of paths), typically for a updating/setting an environment variable
+    """    
     path_sep = os.path_sep
     if isinstance(added_paths, str):
         added_paths = [added_paths]

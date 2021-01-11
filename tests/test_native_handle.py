@@ -189,7 +189,7 @@ def test_wrapper_helper_functions():
     msg = cffi_arg_error_external_obj_type(1, '')
     assert "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'" == msg
     msg = cffi_arg_error_external_obj_type(dog, 'cat')
-    assert "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got object of type id 'dog'" == msg
+    assert "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'" == msg
     dog = None
 
 if __name__ == "__main__":
