@@ -3,7 +3,7 @@ refcount
 
 A Python package for reference counting native resources
 
-|license| |status| master: |Build status - master| devel: |Build status
+|license| |status| master: |Build status - master| testing: |Build status
 - devel|
 
 This package is primarily for managing resources in native libraries,
@@ -142,12 +142,12 @@ Australian Bureau of Meteorology for C/C++/Python interop using
 Readers may also want to look at:
 
 -  a nuget package
-   `dynamic-interop-dll <https://github.com/jmp75/dynamic-interop-dll>`__
+   `dynamic-interop-dll <https://github.com/rdotnet/dynamic-interop-dll>`__
    for .NET/native interop.
 -  A set of mostly c++ software `tools for interop with
-   C/C++ <https://github.com/jmp75/rcpp-interop-commons>`__
+   C/C++ <https://github.com/csiro-hydroinformatics/rcpp-interop-commons>`__
 -  A C# library for `generating interop glue code on top of C API glue
-   code <https://github.com/jmp75/rcpp-wrapper-generation>`__.
+   code <https://github.com/csiro-hydroinformatics/c-api-wrapper-generation>`__.
 
 Other python packages
 ^^^^^^^^^^^^^^^^^^^^^
@@ -156,12 +156,12 @@ While this present package was authored in part because no existing
 prior (Python) work could quite fit the need, there are packages that
 may better address your particular need:
 
--  `infi.pyutils <https://pypi.org/project/infi.pyutils/>`__ constains a
+-  `infi.pyutils <https://pypi.org/project/infi.pyutils/>`__ contains a
    reference counting class.
 
 .. |license| image:: http://img.shields.io/badge/license-MIT-blue.svg
-   :target: https://github.com/jmp75/pyrefcount/blob/devel/LICENSE.txt
-.. |status| image:: https://img.shields.io/badge/status-alpha-blue.svg
+   :target: https://github.com/jmp75/pyrefcount/blob/master/LICENSE.txt
+.. |status| image:: https://img.shields.io/badge/status-beta-blue.svg
 .. |Build status - master| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true
    :target: https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master
 .. |Build status - devel| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/devel?svg=true

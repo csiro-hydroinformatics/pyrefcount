@@ -26,7 +26,7 @@ class CffiNativeHandle(NativeHandle):
     # CffiNativeHandle is designed to alleviate this headache by 
     # using Matlab native reference counting of `handle` classes to reliably dispose of objects. 
 
-    # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/jmp75/dynamic-interop-dll
+    # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/rdotnet/dynamic-interop-dll
 
     # """ a global function that can be called to release an external pointer """
     # release_callback = None

@@ -55,7 +55,7 @@ TEST_REQUIREMENTS = ['pytest',
                     #  'pytest-mpl'
                      ]
 
-CLASSIFIERS = ['Development Status :: 3 - Alpha',
+CLASSIFIERS = ['Development Status :: 4 - Beta',
                 'Intended Audience :: Developers',
                 'Topic :: Software Development ',
                 'Topic :: Software Development :: Object Brokering',  # ??
@@ -63,7 +63,7 @@ CLASSIFIERS = ['Development Status :: 3 - Alpha',
                 'Operating System :: OS Independent',
                 'Programming Language :: Python',
                 'Programming Language :: Python :: 2.7',
-                'Programming Language :: Python :: 3.6'
+                'Programming Language :: Python :: 3'
                 ]
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.

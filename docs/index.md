@@ -1,14 +1,16 @@
-# refcount
-
-A Python package for reference counting native resources
+# refcount documentation
 
 [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmp75/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-beta-blue.svg) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) testing: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/devel?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/devel)
 
-This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, it is practically complicated to properly do so and not end up with memory leak or crashes. This package aims to offer structured options for managing external native resources - I could not locate a pypi package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
+![Reference counted native handles](./img/refcount-principles.png "Reference counted native handles")
+
+This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, **it is deceptively complicated to do so properly** and not end up with memory leak or crashes. This package offers structured options for reliably managing external native resources. Surprisingly I could not locate an existing package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
+
+`refcount` at version 0.7 includes classes using [cffi](https://cffi.readthedocs.io/). Other low-level interoperability mechanisms may be added.
 
 ## License
 
-MIT-derived (see [License.txt](./LICENSE.txt))
+MIT (see [License.txt](https://github.com/jmp75/pyrefcount/blob/master/LICENSE.txt))
 
 ## Installation
 
@@ -23,11 +25,11 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
-## Documentation
+## Sample use
 
-### Example
+The following example is based on one of the unit tests. 
 
-A canonical illustration of the use of this package, based on one of the unit tests. Say we have a C++ library with objects and a C API:
+Say we have a C++ library with objects and a C API:
 
 ```C++
 #define TEST_DOG_PTR  testnative::dog*
@@ -108,9 +110,9 @@ class DogOwner(CustomCffiNativeHandle):
         return True
 ```
 
-### Related work
+## Related work
 
-#### Ancestry
+### Ancestry
 
 This python package `refcount` actually spawned from prior work for interoperability between C++, R and .NET. The port to Python was also influenced by work authored by Kevin Plastow and undertaken at the Australian Bureau of Meteorology for C/C++/Python interop using `cffi`.
 
@@ -120,7 +122,7 @@ Readers may also want to look at:
 * A set of mostly c++ software [tools for interop with C/C++](https://github.com/csiro-hydroinformatics/rcpp-interop-commons)
 * A C# library for [generating interop glue code on top of C API glue code](https://github.com/csiro-hydroinformatics/c-api-wrapper-generation).
 
-#### Other python packages
+### Other python packages
 
 While this present package was authored in part because no existing prior (Python) work could quite fit the need, there are packages that may better address your particular need:
 

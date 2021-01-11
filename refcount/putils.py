@@ -5,7 +5,7 @@ from glob import glob
 from ctypes.util import find_library as ctypes_find_library
 from typing import List, Union
 
-'''This module will host features similar to https://github.com/jmp75/dynamic-interop-dll/blob/master/DynamicInterop/PlatformUtility.cs
+'''This module will host features similar to https://github.com/rdotnet/dynamic-interop-dll/blob/master/DynamicInterop/PlatformUtility.cs
 '''
 
 def library_short_filename(library_name):

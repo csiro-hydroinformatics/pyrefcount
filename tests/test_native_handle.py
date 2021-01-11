@@ -4,11 +4,10 @@ from datetime import datetime
 import gc
 
 pkg_dir = os.path.join(os.path.dirname(__file__),'..')
-sys.path.append(pkg_dir)
+sys.path.insert(0, pkg_dir)
 
 from refcount.interop import *
 from refcount.putils import library_short_filename
-
 
 fname = library_short_filename("test_native_library")
 
@@ -193,3 +192,6 @@ def test_wrapper_helper_functions():
     assert "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got object of type id 'dog'" == msg
     dog = None
 
+if __name__ == "__main__":
+    # test_wrapper_helper_functions()
+    pass
