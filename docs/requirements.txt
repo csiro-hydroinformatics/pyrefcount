@@ -1,0 +1,10 @@
+cffi
+mkdocs-material
+mkdocs-material-extensions
+mkdocstrings
+# added by readthedocs anyway:
+mock
+pillow
+recommonmark 
+six
+mkdocs

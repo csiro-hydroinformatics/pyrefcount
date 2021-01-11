@@ -18,10 +18,13 @@ mkdocs:
 #   - pdf
 
 # Optionally set the version of Python and requirements required to build your docs
-# python:
-#   version: 3.7
-#   install:
-#     - requirements: docs/requirements.txt
+python:
+  version: 3.8
+  install:
+    - requirements: docs/requirements.txt
 
-conda:
-  environment: docs/environment.yml
+## Tried to use conda; worked for a bit but then failed to work with typehints added
+# on the readthedoc build. but works locally. Revert to pip requirements instead
+# since anyway it looks like pip install mkdocs is done on top of conda setup.
+# conda:
+#   environment: docs/environment.yml

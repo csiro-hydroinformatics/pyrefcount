@@ -3,12 +3,12 @@ refcount
 
 A Python package for reference counting native resources
 
-|license| |status| master: |Build status - master| testing: |Build status
-- devel|
+|license| |Documentation Status| |status| master: |Build status -
+master| testing: |Build status - devel|
 
 This package is primarily for managing resources in native libraries,
 written for instance in C++, from Python. While it boils down to
-"simply" maintaining a set of counters, it is practically complicated to
+“simply” maintaining a set of counters, it is practically complicated to
 properly do so and not end up with memory leak or crashes. This package
 aims to offer structured options for managing external native resources
 - I could not locate a pypi package doing just what I needed. Other use
@@ -20,40 +20,42 @@ License
 
 MIT-derived (see `License.txt <./LICENSE.txt>`__)
 
+Documentation
+-------------
+
+`pyrefcount at readthedocs <https://pyrefcount.readthedocs.io>`__
+
 Installation
 ------------
 
 .. code:: sh
 
-    pip install refcount
+   pip install refcount
 
 From source:
 
 .. code:: sh
 
-    pip install -r requirements.txt
-    python setup.py install
-
-Documentation
--------------
+   pip install -r requirements.txt
+   python setup.py install
 
 Example
-~~~~~~~
+-------
 
 A canonical illustration of the use of this package, based on one of the
 unit tests. Say we have a C++ library with objects and a C API:
 
 .. code:: c++
 
-    #define TEST_DOG_PTR  testnative::dog*
-    #define TEST_OWNER_PTR  testnative::owner*
-    #define TEST_COUNTED_PTR  testnative::reference_counter*
+   #define TEST_DOG_PTR  testnative::dog*
+   #define TEST_OWNER_PTR  testnative::owner*
+   #define TEST_COUNTED_PTR  testnative::reference_counter*
 
-    testnative::dog* create_dog();
-    testnative::owner* create_owner(testnative::dog* d);
-    void say_walk(testnative::owner* owner);
-    void release(testnative::reference_counter* obj);
-    // etc.
+   testnative::dog* create_dog();
+   testnative::owner* create_owner(testnative::dog* d);
+   void say_walk(testnative::owner* owner);
+   void release(testnative::reference_counter* obj);
+   // etc.
 
 From the outside of the library the API is exported with opaque pointers
 ``void*`` (C structs pointers and native C99 types could be handled
@@ -61,11 +63,11 @@ too).
 
 .. code:: c++
 
-    void* create_dog();
-    void* create_owner(void* d);
-    void say_walk(void* owner);
-    void release(void* obj);
-    // etc.
+   void* create_dog();
+   void* create_owner(void* d);
+   void say_walk(void* owner);
+   void release(void* obj);
+   // etc.
 
 Starting with the end in mind, from Python we want an API hiding the low
 level details close to the C API, in particular avoiding managing native
@@ -73,59 +75,59 @@ memory via ``release`` C API calls, piggybacking the python GC instead.
 
 .. code:: py
 
-    dog = Dog()
-    owner = DogOwner(dog)
-    owner.say_walk()
-    print(dog.position)
-    dog = None # the "native dog" is still alive though, as the owner incremented the ref count
-    owner = None
+   dog = Dog()
+   owner = DogOwner(dog)
+   owner.say_walk()
+   print(dog.position)
+   dog = None # the "native dog" is still alive though, as the owner incremented the ref count
+   owner = None
 
 This is doable with ``refcount`` and the ``cffi`` package. One possible
 design is:
 
 .. code:: py
 
-    ut_ffi = cffi.FFI()
+   ut_ffi = cffi.FFI()
 
-    ut_ffi.cdef('extern void* create_dog();')
-    ut_ffi.cdef('extern void* create_owner( void* d);')
-    ut_ffi.cdef('extern void say_walk( void* owner);')
-    ut_ffi.cdef('extern void release( void* obj);')
-    # etc.
+   ut_ffi.cdef('extern void* create_dog();')
+   ut_ffi.cdef('extern void* create_owner( void* d);')
+   ut_ffi.cdef('extern void say_walk( void* owner);')
+   ut_ffi.cdef('extern void release( void* obj);')
+   # etc.
 
-    ut_dll = ut_ffi.dlopen('c:/path/to/test_native_library.dll', 1) # Lazy loading
+   ut_dll = ut_ffi.dlopen('c:/path/to/test_native_library.dll', 1) # Lazy loading
 
-    class CustomCffiNativeHandle(CffiNativeHandle):
-        def __init__(self, pointer, prior_ref_count = 0):
-            super(CustomCffiNativeHandle, self).__init__(pointer, type_id='', prior_ref_count = prior_ref_count)
+   class CustomCffiNativeHandle(CffiNativeHandle):
+       def __init__(self, pointer, prior_ref_count = 0):
+           super(CustomCffiNativeHandle, self).__init__(pointer, type_id='', prior_ref_count = prior_ref_count)
 
-        def _release_handle(self) -> bool:
-            ut_dll.release(self.get_handle())
-            return True
+       def _release_handle(self) -> bool:
+           ut_dll.release(self.get_handle())
+           return True
 
-    class Dog(CustomCffiNativeHandle):
-        def __init__(self, pointer = None):
-            if pointer is None:
-                pointer = ut_dll.create_dog()
-            super(Dog, self).__init__(pointer)
-        # etc.
+   class Dog(CustomCffiNativeHandle):
+       def __init__(self, pointer = None):
+           if pointer is None:
+               pointer = ut_dll.create_dog()
+           super(Dog, self).__init__(pointer)
+       # etc.
 
-    class DogOwner(CustomCffiNativeHandle):
+   class DogOwner(CustomCffiNativeHandle):
 
-        def __init__(self, dog):
-            super(DogOwner, self).__init__(None)
-            self._set_handle(ut_dll.create_owner(dog.get_handle()))
-            self.dog = dog
-            self.dog.add_ref() # Do note this important reference increment
+       def __init__(self, dog):
+           super(DogOwner, self).__init__(None)
+           self._set_handle(ut_dll.create_owner(dog.get_handle()))
+           self.dog = dog
+           self.dog.add_ref() # Do note this important reference increment
 
-        def say_walk(self):
-            ut_dll.say_walk(self.get_handle())
+       def say_walk(self):
+           ut_dll.say_walk(self.get_handle())
 
-        def _release_handle(self) -> bool:
-            super(DogOwner, self)._release_handle()
-            # super(DogOwner, self)._release_handle()
-            self.dog.release()
-            return True
+       def _release_handle(self) -> bool:
+           super(DogOwner, self)._release_handle()
+           # super(DogOwner, self)._release_handle()
+           self.dog.release()
+           return True
 
 Related work
 ~~~~~~~~~~~~
@@ -160,9 +162,11 @@ may better address your particular need:
    reference counting class.
 
 .. |license| image:: http://img.shields.io/badge/license-MIT-blue.svg
-   :target: https://github.com/jmp75/pyrefcount/blob/master/LICENSE.txt
+   :target: https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt
+.. |Documentation Status| image:: https://readthedocs.org/projects/pyrefcount/badge/?version=latest
+   :target: https://pyrefcount.readthedocs.io/en/latest/?badge=latest
 .. |status| image:: https://img.shields.io/badge/status-beta-blue.svg
 .. |Build status - master| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master
+   :target: https://ci.appveyor.com/project/csiro-hydroinformatics/pyrefcount/branch/master
 .. |Build status - devel| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/devel?svg=true
-   :target: https://ci.appveyor.com/project/jmp75/pyrefcount/branch/devel
+   :target: https://ci.appveyor.com/project/csiro-hydroinformatics/pyrefcount/branch/devel

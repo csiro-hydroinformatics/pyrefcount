@@ -1,7 +1,7 @@
 """A package for reference counting and interop with native pointers
 
 See:
-https://github.com/jmp75/pyrefcount
+https://github.com/csiro-hydroinformatics/pyrefcount
 """
 
 from setuptools import setup
@@ -74,7 +74,7 @@ setup(
     description='A Python package for reference counting and interop with native pointers', 
     long_description=long_description,
     long_description_content_type=long_description_content_type,
-    url='https://github.com/jmp75/pyrefcount',
+    url='https://github.com/csiro-hydroinformatics/pyrefcount',
     author='Jean-Michel Perraud',
     author_email='per202@csiro.au',
     classifiers=CLASSIFIERS,
@@ -129,9 +129,9 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/jmp75/pyrefcount/issues',
+        'Bug Reports': 'https://github.com/csiro-hydroinformatics/pyrefcount/issues',
         # 'Funding': 'https://donate.pypi.org',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
-        'Source': 'https://github.com/jmp75/pyrefcount',
+        'Source': 'https://github.com/csiro-hydroinformatics/pyrefcount',
     },
 )
