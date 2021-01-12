@@ -1,16 +1,20 @@
 # refcount documentation
 
-[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-beta-blue.svg) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) testing: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/testing)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-beta-blue.svg) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) testing: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/testing)
 
 ![Reference counted native handles](./img/refcount-principles.png "Reference counted native handles")
 
-This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, **it is deceptively complicated to do so properly** and not end up with memory leak or crashes. This package offers structured options for reliably managing external native resources. Surprisingly I could not locate an existing package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
+This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, **it is deceptively complicated to do so properly** and not end up with memory leaks or crashes. This package offers structured options for reliably managing external native resources. Surprisingly I could not locate an existing package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
 
 `refcount` at version 0.7 includes classes using [cffi](https://cffi.readthedocs.io/). Other low-level interoperability mechanisms may be added.
 
 ## License
 
 MIT (see [License.txt](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt))
+
+## Source code
+
+The code repository is on [GitHub](https://github.com/csiro-hydroinformatics/pyrefcount).
 
 ## Installation
 
@@ -112,18 +116,20 @@ class DogOwner(CustomCffiNativeHandle):
 
 ## Related work
 
-### Ancestry
+### Ancestry, acknowledgements
 
-This python package `refcount` actually spawned from prior work for interoperability between C++, R and .NET. The port to Python was also influenced by work authored by Kevin Plastow and undertaken at the Australian Bureau of Meteorology for C/C++/Python interop using `cffi`.
+This python package `refcount` actually spawned from prior work for interoperability between C++, R and .NET ([R.NET](https://github.com/rdotnet/rdotnet))
 
-Readers may also want to look at:
+`refcount` features using `cffi` were also significantly informed by Kevin Plastow's [work](https://search.informit.com.au/documentSummary;dn=823898220073899;res=IELENG) while he was at the Australian Bureau of Meteorology; this contribution is gratefully acknowledged.
 
-* a nuget package [dynamic-interop-dll](https://github.com/rdotnet/dynamic-interop-dll) for .NET/native interop.
-* A set of mostly c++ software [tools for interop with C/C++](https://github.com/csiro-hydroinformatics/rcpp-interop-commons)
-* A C# library for [generating interop glue code on top of C API glue code](https://github.com/csiro-hydroinformatics/c-api-wrapper-generation).
+In you have native interop needs you may also want to look at:
+
+* the nuget package [dynamic-interop-dll](https://github.com/rdotnet/dynamic-interop-dll) for .NET/native interop.
+* a set of mostly c++ software [tools for interop with C/C++](https://github.com/csiro-hydroinformatics/rcpp-interop-commons)
+* a C# library for [generating interop glue code on top of C API glue code](https://github.com/csiro-hydroinformatics/c-api-wrapper-generation).
 
 ### Other python packages
 
-While this present package was authored in part because no existing prior (Python) work could quite fit the need, there are packages that may better address your particular need:
+`refcount` was created in part because no existing prior (Python) work could quite fit the need. There are however packages that may better address your particular need:
 
 * [infi.pyutils](https://pypi.org/project/infi.pyutils/) contains a reference counting class.

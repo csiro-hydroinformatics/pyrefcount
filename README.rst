@@ -161,7 +161,7 @@ may better address your particular need:
 -  `infi.pyutils <https://pypi.org/project/infi.pyutils/>`__ contains a
    reference counting class.
 
-.. |license| image:: http://img.shields.io/badge/license-MIT-blue.svg
+.. |license| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt
 .. |Documentation Status| image:: https://readthedocs.org/projects/pyrefcount/badge/?version=latest
    :target: https://pyrefcount.readthedocs.io/en/latest/?badge=latest
