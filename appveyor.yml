@@ -8,7 +8,7 @@ platform: x64
 
 environment:
   matrix:
-      - PYTHON: "C:\\Python37-x64"
+      - PYTHON: "C:\\Python37-x64"testing
         PYTHON_VERSION: "3.7.x"
         ARCH: "64"
         WINDOWS_SDK_VERSION: "v7.1"
@@ -18,7 +18,7 @@ environment:
 branches:
   only:
   - master
-  - devel
+  - testing
 
 
 install:

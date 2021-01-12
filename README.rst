@@ -167,6 +167,6 @@ may better address your particular need:
    :target: https://pyrefcount.readthedocs.io/en/latest/?badge=latest
 .. |status| image:: https://img.shields.io/badge/status-beta-blue.svg
 .. |Build status - master| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/csiro-hydroinformatics/pyrefcount/branch/master
-.. |Build status - devel| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/devel?svg=true
-   :target: https://ci.appveyor.com/project/csiro-hydroinformatics/pyrefcount/branch/devel
+   :target: https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master
+.. |Build status - devel| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true
+   :target: https://ci.appveyor.com/project/jmp75/pyrefcount/branch/testing
