@@ -8,7 +8,7 @@ platform: x64
 
 environment:
   matrix:
-      - PYTHON: "C:\\Python37-x64"testing
+      - PYTHON: "C:\\Python37-x64"
         PYTHON_VERSION: "3.7.x"
         ARCH: "64"
         WINDOWS_SDK_VERSION: "v7.1"
