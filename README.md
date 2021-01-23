@@ -1,6 +1,7 @@
 # refcount
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-beta-blue.svg) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) testing: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/testing)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-beta-blue.svg) [![Documentation Status](https://readthedocs.org/projects/pyrefcount/badge/?version=latest)](https://pyrefcount.readthedocs.io/en/latest/?badge=latest) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) testing: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/testing)
+
 
 ![Reference counted native handles](./docs/img/refcount-principles.png "Reference counted native handles")
 
@@ -11,6 +12,10 @@ This package is primarily for managing resources in native libraries, written fo
 ## License
 
 MIT (see [License.txt](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt))
+
+## Documentation
+
+Hosted at [pyrefcount.readthedocs.io](https://pyrefcount.readthedocs.io/en/latest/?badge=latest)
 
 ## Source code
 
