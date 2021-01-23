@@ -1,4 +1,3 @@
-
 from typing import Any, Callable, Union
 from cffi import FFI
 from refcount.base import NativeHandle
@@ -10,8 +9,10 @@ CffiData = FFI().CData
 
 FFI.CData is a type, but it seems it cannot be used in type hinting.
 """
+
+
 class CffiNativeHandle(NativeHandle):
-    """ Reference counting wrapper class for CFFI pointers
+    """Reference counting wrapper class for CFFI pointers
 
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
@@ -26,21 +27,21 @@ class CffiNativeHandle(NativeHandle):
     # aLibPointer = callib('mylib', 'create_some_object');
     # but at some point when done need to dispose of it:
     # callib('mylib', 'dispose_of_some_object', aLibPointer);
-    # In practice in real systems one quickly ends up with cases 
-    # where it is unclear when to dispose of the object. 
-    # If you call the `dispose_of_some_object` function more 
+    # In practice in real systems one quickly ends up with cases
+    # where it is unclear when to dispose of the object.
+    # If you call the `dispose_of_some_object` function more
     # than once of too soon, you could easily crash the program.
-    # CffiNativeHandle is designed to alleviate this headache by 
-    # using Matlab native reference counting of `handle` classes to reliably dispose of objects. 
+    # CffiNativeHandle is designed to alleviate this headache by
+    # using Matlab native reference counting of `handle` classes to reliably dispose of objects.
 
     # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/rdotnet/dynamic-interop-dll
 
     # """ a global function that can be called to release an external pointer """
     # release_native = None
 
-    def __init__(self, handle:CffiData, type_id:str=None, prior_ref_count:int = 0):
+    def __init__(self, handle: CffiData, type_id: str = None, prior_ref_count: int = 0):
         """Initialize a reference counter for a resource handle, with an initial reference count.
-        
+
         Args:
             handle (object): The handle (e.g. cffi pointer) to the native resource.
             type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
@@ -48,27 +49,27 @@ class CffiNativeHandle(NativeHandle):
         """
         super(CffiNativeHandle, self).__init__(handle, prior_ref_count)
         # TODO checks on handle
-        self._type_id:str = type_id
-        self._finalizing:bool = False
-        self._handle:CffiData = None
+        self._type_id: str = type_id
+        self._finalizing: bool = False
+        self._handle: CffiData = None
         # if release_native is None:
         #     self._release_native = CffiNativeHandle.release_native
         # else:
         #     self._release_native = release_native
         if handle is None:
-            return # defer setting handle to the inheritor.
+            return  # defer setting handle to the inheritor.
         self._set_handle(handle, prior_ref_count)
 
-    def _is_valid_handle(self, h:CffiData) -> bool:
-        """ Checks if the handle is a CFFI CData pointer, acceptable handle for this wrapper.
+    def _is_valid_handle(self, h: CffiData) -> bool:
+        """Checks if the handle is a CFFI CData pointer, acceptable handle for this wrapper.
 
         Args:
             handle (object): The handle (e.g. cffi pointer) to the native resource.
         """
         return isinstance(h, FFI.CData)
 
-    def __dispose_impl(self, decrement:bool):
-        """ An implementation of the dispose method in a 'Dispose' software pattern. Avoids cyclic method calls.
+    def __dispose_impl(self, decrement: bool):
+        """An implementation of the dispose method in a 'Dispose' software pattern. Avoids cyclic method calls.
 
         Args:
             decrement (bool): indicating whether the reference count should be decreased. It should almost always be True except in very unusual use cases (argument is for possible future use).
@@ -82,7 +83,7 @@ class CffiNativeHandle(NativeHandle):
                 self._handle = None
                 # if (!_finalizing)
                 # GC.SuppressFinalize(this)
-         
+
     @property
     def disposed(self):
         """Has the native object and memory already been disposed of.
@@ -97,12 +98,12 @@ class CffiNativeHandle(NativeHandle):
         """Is the underlying handle valid? In practice synonym with the disposed attribute.
 
         Returns:
-            (bool): True if this handle is valid 
+            (bool): True if this handle is valid
         """
         return self._handle is None
 
     def _release_handle(self) -> bool:
-        """ Must of overriden. Method disposing of the object pointed to by the CFFI pointer (handle)
+        """Must of overriden. Method disposing of the object pointed to by the CFFI pointer (handle)
 
         Raises:
             NotImplementedError: thrown if this method is not overriden by inheritors
@@ -130,10 +131,10 @@ class CffiNativeHandle(NativeHandle):
     #     return self._handle
 
     @property
-    def type_id(self) ->str:
-        """ Return an optional type identifier for the underlying native type.
+    def type_id(self) -> str:
+        """Return an optional type identifier for the underlying native type.
 
-        This can be in practice useful to be more transparent about the underlying 
+        This can be in practice useful to be more transparent about the underlying
         type obtained via a C API with opaque pointers (i.e. void*)
 
         Returns:
@@ -148,9 +149,11 @@ class CffiNativeHandle(NativeHandle):
 
     def __str__(self):
         """ string representation """
-        if self.type_id is None or self.type_id == '':
-            return 'CFFI pointer handle to a native pointer'
-        return 'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
+        if self.type_id is None or self.type_id == "":
+            return "CFFI pointer handle to a native pointer"
+        return (
+            'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
+        )
 
     def __repr__(self):
         """ string representation """
@@ -166,18 +169,16 @@ class CffiNativeHandle(NativeHandle):
             self.release()
 
     def dispose(self):
-        """ Disposing of the object pointed to by the CFFI pointer (handle) if the reference counts allows it.
-        """
+        """Disposing of the object pointed to by the CFFI pointer (handle) if the reference counts allows it."""
         self.__dispose_impl(True)
 
     def release(self):
-        """ Manually decrements the reference counter. Triggers disposal if reference count is down to zero.
-        """
+        """Manually decrements the reference counter. Triggers disposal if reference count is down to zero."""
         self.__dispose_impl(True)
 
 
 class DeletableCffiNativeHandle(CffiNativeHandle):
-    """ Reference counting wrapper class for CFFI pointers
+    """Reference counting wrapper class for CFFI pointers
 
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
@@ -185,10 +186,17 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
         _release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object _handle.
     """
+
     # """ a global function that can be called to release an external pointer """
     # release_native = None
 
-    def __init__(self, handle:CffiData, release_native:Callable[[CffiData],None], type_id:str=None, prior_ref_count:int = 0):
+    def __init__(
+        self,
+        handle: CffiData,
+        release_native: Callable[[CffiData], None],
+        type_id: str = None,
+        prior_ref_count: int = 0,
+    ):
         """New reference counter for a CFFI resource handle.
 
         Args:
@@ -197,12 +205,14 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
             type_id (str, optional): [description]. An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation. Defaults to None.
             prior_ref_count (int, optional): [description]. The initial reference count. Defaults to 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
-        super(DeletableCffiNativeHandle, self).__init__(handle, type_id, prior_ref_count)
-        self._release_native:Callable[[CffiData],None] = release_native
+        super(DeletableCffiNativeHandle, self).__init__(
+            handle, type_id, prior_ref_count
+        )
+        self._release_native: Callable[[CffiData], None] = release_native
         self._set_handle(handle, prior_ref_count)
 
     def _release_handle(self) -> bool:
-        """ Manually decrements the reference counter. Triggers disposal if reference count is reaching down to zero.
+        """Manually decrements the reference counter. Triggers disposal if reference count is reaching down to zero.
 
         Returns:
             bool: Overriding implementation should return True if the release of native resources handle was successful, False otherwise.
@@ -212,11 +222,18 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         if self._release_native is None:
             return False
         if self._release_native is not None:
-            self._release_native(self._handle) # TODO are trapped exceptions acceptable here? 
+            self._release_native(
+                self._handle
+            )  # TODO are trapped exceptions acceptable here?
             return True
 
-def wrap_cffi_native_handle(obj:Union[CffiData,Any], type_id:str='', release_native:Callable[[CffiData],None] = None) -> Union[DeletableCffiNativeHandle,Any]:
-    """ Create a reference counting wrapper around an object if this object is a CFFI pointer
+
+def wrap_cffi_native_handle(
+    obj: Union[CffiData, Any],
+    type_id: str = "",
+    release_native: Callable[[CffiData], None] = None,
+) -> Union[DeletableCffiNativeHandle, Any]:
+    """Create a reference counting wrapper around an object if this object is a CFFI pointer
 
     Args:
         obj (Union[CffiData,Any]): An object, which will be wrapped if this is a CFFI pointer, i.e. an instance of `CffiData`
@@ -224,12 +241,15 @@ def wrap_cffi_native_handle(obj:Union[CffiData,Any], type_id:str='', release_nat
         type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
     """
     if isinstance(obj, FFI.CData):
-        return DeletableCffiNativeHandle(obj, release_native=release_native, type_id=type_id) 
+        return DeletableCffiNativeHandle(
+            obj, release_native=release_native, type_id=type_id
+        )
     else:
         return obj
 
-def is_cffi_native_handle(x:Any, type_id:str='') -> bool:
-    """ Checks whether an object is a ref counting wrapper around a CFFI pointer
+
+def is_cffi_native_handle(x: Any, type_id: str = "") -> bool:
+    """Checks whether an object is a ref counting wrapper around a CFFI pointer
 
     Args:
         x (object): object to test, presumed to be an instance of `CffiNativeHandle`
@@ -239,12 +259,15 @@ def is_cffi_native_handle(x:Any, type_id:str='') -> bool:
         return False
     if not isinstance(x, CffiNativeHandle):
         return False
-    if type_id is None or type_id == '':
+    if type_id is None or type_id == "":
         return True
-    return (x.type_id == type_id)
+    return x.type_id == type_id
 
-def unwrap_cffi_native_handle(obj_wrapper:Any, stringent:bool=False) -> Union[CffiData,Any,None]:
-    """ Unwrap a reference counting wrapper and returns its CFFI pointer if it is found (wrapped or 'raw')
+
+def unwrap_cffi_native_handle(
+    obj_wrapper: Any, stringent: bool = False
+) -> Union[CffiData, Any, None]:
+    """Unwrap a reference counting wrapper and returns its CFFI pointer if it is found (wrapped or 'raw')
 
     Args:
         obj_wrapper (Any): An object, which will be unwrapped if this is a CFFI pointer, i.e. an instance of `CffiData`
@@ -255,22 +278,25 @@ def unwrap_cffi_native_handle(obj_wrapper:Any, stringent:bool=False) -> Union[Cf
 
     Returns:
         Union[CffiData,Any,None]: A CFFI pointer if it was found. Returns None or unchanged if not found, and stringent is equal to False. Exception otherwise.
-    """    
-    # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters. 
+    """
+    # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters.
     # Reassess approach, even if other C API function will still catch the issue of null ptrs.
     if obj_wrapper is None:
-        return None  
+        return None
     if isinstance(obj_wrapper, CffiNativeHandle):
         return obj_wrapper.get_handle()
     if isinstance(obj_wrapper, FFI.CData):
         return obj_wrapper
     else:
         if stringent:
-            raise Exception('Argument is neither a CffiNativeHandle nor a CFFI external pointer')
+            raise Exception(
+                "Argument is neither a CffiNativeHandle nor a CFFI external pointer"
+            )
         else:
             return obj_wrapper
 
-def cffi_arg_error_external_obj_type(x:Any, expected_type_id:str):
+
+def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str):
     """Build an error message that an unexpected object is in lieu of an expected refcount external ref object.
 
     Args:
@@ -282,9 +308,16 @@ def cffi_arg_error_external_obj_type(x:Any, expected_type_id:str):
     if x is None:
         return "Expected a 'CffiNativeHandle' but instead got 'None'"
     if not is_cffi_native_handle(x):
-        return "Expected a 'CffiNativeHandle' but instead got object of type '{0}'".format(str(type(x)))
+        return (
+            "Expected a 'CffiNativeHandle' but instead got object of type '{0}'".format(
+                str(type(x))
+            )
+        )
     else:
-        return "Expected a 'CffiNativeHandle' with underlying type id '{0}' but instead got one with type id '{1}'".format(expected_type_id, x.type_id)
+        return "Expected a 'CffiNativeHandle' with underlying type id '{0}' but instead got one with type id '{1}'".format(
+            expected_type_id, x.type_id
+        )
+
 
 # Maybe, pending use cases:
 # def checked_unwrap_cffi_native_handle (obj_wrapper, stringent=False):
@@ -292,4 +325,3 @@ def cffi_arg_error_external_obj_type(x:Any, expected_type_id:str):
 #         raise Exception(cffi_arg_error_external_obj_type(obj_wrapper, expected_type_id)
 #     else:
 #         return unwrap_cffi_native_handle (obj_wrapper, stringent=True)
-

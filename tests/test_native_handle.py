@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 import gc
 
-pkg_dir = os.path.join(os.path.dirname(__file__),'..')
+pkg_dir = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, pkg_dir)
 
 from refcount.interop import *
@@ -11,14 +11,15 @@ from refcount.putils import library_short_filename
 
 fname = library_short_filename("test_native_library")
 
-if(sys.platform == 'win32'):
-    dir_path = os.path.join(pkg_dir, 'tests/test_native_library/x64/Debug')
+if sys.platform == "win32":
+    dir_path = os.path.join(pkg_dir, "tests/test_native_library/x64/Debug")
 else:
-    dir_path = os.path.join(pkg_dir, 'tests/test_native_library/build')
+    dir_path = os.path.join(pkg_dir, "tests/test_native_library/build")
 
 native_lib_path = os.path.join(dir_path, fname)
 
 assert os.path.exists(native_lib_path)
+
 
 def test_native_obj_ref_counting():
     dog = Dog()
@@ -45,12 +46,13 @@ def test_native_obj_ref_counting():
     owner.release()
     assert 0 == owner.reference_count
     assert 0 == dog.reference_count
-    # Cannot check on the native ref count - deleted objects. 
+    # Cannot check on the native ref count - deleted objects.
     # TODO think of a simple way to test these
-    #assert 0, owner.native_reference_count)
-    #assert 0, dog.native_reference_count)
+    # assert 0, owner.native_reference_count)
+    # assert 0, dog.native_reference_count)
     assert dog.is_invalid
     assert owner.is_invalid
+
 
 def test_cffi_native_handle_finalizers():
     initDogCount = Dog.num_native_instances()
@@ -73,6 +75,7 @@ def test_cffi_native_handle_finalizers():
     gc.collect()
     assert initDogCount == Dog.num_native_instances()
 
+
 def test_cffi_native_handle_dispose():
     initDogCount = Dog.num_native_instances()
     dog = Dog()
@@ -89,7 +92,8 @@ def test_cffi_native_handle_dispose():
 
 ut_ffi = FFI()
 
-ut_ffi.cdef('''
+ut_ffi.cdef(
+    """
 typedef struct _date_time_interop
 {
 	int year;
@@ -105,36 +109,44 @@ typedef struct _interval_interop
 	date_time_interop start;
 	date_time_interop end;
 } interval_interop;
-''')
+"""
+)
 
-ut_ffi.cdef('extern void create_date(date_time_interop* start, int year, int month, int day, int hour, int min, int sec);')
-ut_ffi.cdef('extern int test_date(date_time_interop* start, int year, int month, int day, int hour, int min, int sec);')
-ut_ffi.cdef('extern  void* create_dog();')
-ut_ffi.cdef('extern int get_dog_refcount( void* obj);')
-ut_ffi.cdef('extern int remove_dog_reference( void* obj);')
-ut_ffi.cdef('extern int add_dog_reference( void* obj);')
-ut_ffi.cdef('extern  void* create_owner( void* d);')
-ut_ffi.cdef('extern int get_owner_refcount( void* obj);')
-ut_ffi.cdef('extern int remove_owner_reference( void* obj);')
-ut_ffi.cdef('extern int add_owner_reference( void* obj);')
-ut_ffi.cdef('extern int num_dogs();')
-ut_ffi.cdef('extern int num_owners();')
-ut_ffi.cdef('extern void say_walk( void* owner);')
-ut_ffi.cdef('extern void release( void* obj);')
+ut_ffi.cdef(
+    "extern void create_date(date_time_interop* start, int year, int month, int day, int hour, int min, int sec);"
+)
+ut_ffi.cdef(
+    "extern int test_date(date_time_interop* start, int year, int month, int day, int hour, int min, int sec);"
+)
+ut_ffi.cdef("extern  void* create_dog();")
+ut_ffi.cdef("extern int get_dog_refcount( void* obj);")
+ut_ffi.cdef("extern int remove_dog_reference( void* obj);")
+ut_ffi.cdef("extern int add_dog_reference( void* obj);")
+ut_ffi.cdef("extern  void* create_owner( void* d);")
+ut_ffi.cdef("extern int get_owner_refcount( void* obj);")
+ut_ffi.cdef("extern int remove_owner_reference( void* obj);")
+ut_ffi.cdef("extern int add_owner_reference( void* obj);")
+ut_ffi.cdef("extern int num_dogs();")
+ut_ffi.cdef("extern int num_owners();")
+ut_ffi.cdef("extern void say_walk( void* owner);")
+ut_ffi.cdef("extern void release( void* obj);")
 
-ut_dll = ut_ffi.dlopen(native_lib_path, 1) # Lazy loading
+ut_dll = ut_ffi.dlopen(native_lib_path, 1)  # Lazy loading
 
 
 class CustomCffiNativeHandle(CffiNativeHandle):
-    def __init__(self, pointer, prior_ref_count = 0):
-        super(CustomCffiNativeHandle, self).__init__(pointer, type_id='', prior_ref_count = prior_ref_count)
+    def __init__(self, pointer, prior_ref_count=0):
+        super(CustomCffiNativeHandle, self).__init__(
+            pointer, type_id="", prior_ref_count=prior_ref_count
+        )
 
     def _release_handle(self) -> bool:
-        ut_dll.release(self.get_handle());
+        ut_dll.release(self.get_handle())
         return True
 
+
 class Dog(CustomCffiNativeHandle):
-    def __init__(self, pointer = None):
+    def __init__(self, pointer=None):
         if pointer is None:
             pointer = ut_dll.create_dog()
         super(Dog, self).__init__(pointer)
@@ -149,13 +161,12 @@ class Dog(CustomCffiNativeHandle):
 
 
 class DogOwner(CustomCffiNativeHandle):
-
     def __init__(self, dog):
         super(DogOwner, self).__init__(None)
         self._set_handle(ut_dll.create_owner(dog.get_handle()))
         self.dog = dog
         self.dog.add_ref()
-        
+
     @property
     def native_reference_count(self):
         return ut_dll.get_owner_refcount(self.get_handle())
@@ -173,24 +184,32 @@ class DogOwner(CustomCffiNativeHandle):
         self.dog.release()
         return True
 
+
 def test_wrapper_helper_functions():
     assert isinstance(wrap_cffi_native_handle(dict()), dict)
     pointer = ut_dll.create_dog()
-    dog = wrap_cffi_native_handle(pointer, 'dog', ut_dll.release)
+    dog = wrap_cffi_native_handle(pointer, "dog", ut_dll.release)
     assert isinstance(dog, CffiNativeHandle)
     assert dog.is_invalid == False
     assert 1 == dog.reference_count
-    assert is_cffi_native_handle (dog, 'dog')
-    assert is_cffi_native_handle (dog, 'cat') == False
-    assert is_cffi_native_handle (dict()) == False
-    assert is_cffi_native_handle (1) == False
-    assert is_cffi_native_handle (1, 'cat') == False
-    assert pointer == unwrap_cffi_native_handle (dog, False)
-    msg = cffi_arg_error_external_obj_type(1, '')
-    assert "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'" == msg
-    msg = cffi_arg_error_external_obj_type(dog, 'cat')
-    assert "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'" == msg
+    assert is_cffi_native_handle(dog, "dog")
+    assert is_cffi_native_handle(dog, "cat") == False
+    assert is_cffi_native_handle(dict()) == False
+    assert is_cffi_native_handle(1) == False
+    assert is_cffi_native_handle(1, "cat") == False
+    assert pointer == unwrap_cffi_native_handle(dog, False)
+    msg = cffi_arg_error_external_obj_type(1, "")
+    assert (
+        "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'"
+        == msg
+    )
+    msg = cffi_arg_error_external_obj_type(dog, "cat")
+    assert (
+        "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'"
+        == msg
+    )
     dog = None
+
 
 if __name__ == "__main__":
     # test_wrapper_helper_functions()
