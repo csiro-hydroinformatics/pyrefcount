@@ -4,8 +4,12 @@ from cffi import FFI
 from refcount.base import NativeHandle
 
 # This is a Hack. I cannot use FFI.CData in type hints.
-CffiData = Any
+# CffiData = Any
+CffiData = FFI().CData
+"""A dummy type to use in type hints for limited documentation purposes
 
+FFI.CData is a type, but it seems it cannot be used in type hinting.
+"""
 class CffiNativeHandle(NativeHandle):
     """ Reference counting wrapper class for CFFI pointers
 
@@ -32,9 +36,9 @@ class CffiNativeHandle(NativeHandle):
     # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/rdotnet/dynamic-interop-dll
 
     # """ a global function that can be called to release an external pointer """
-    # release_callback = None
+    # release_native = None
 
-    def __init__(self, handle, type_id:str=None, prior_ref_count:int = 0):
+    def __init__(self, handle:CffiData, type_id:str=None, prior_ref_count:int = 0):
         """Initialize a reference counter for a resource handle, with an initial reference count.
         
         Args:
@@ -47,10 +51,10 @@ class CffiNativeHandle(NativeHandle):
         self._type_id:str = type_id
         self._finalizing:bool = False
         self._handle:CffiData = None
-        # if release_callback is None:
-        #     self._release_callback = CffiNativeHandle.release_callback
+        # if release_native is None:
+        #     self._release_native = CffiNativeHandle.release_native
         # else:
-        #     self._release_callback = release_callback
+        #     self._release_native = release_native
         if handle is None:
             return # defer setting handle to the inheritor.
         self._set_handle(handle, prior_ref_count)
@@ -155,7 +159,7 @@ class CffiNativeHandle(NativeHandle):
     def __del__(self):
         """ destructor, triggering the release of the underlying handled resource if the reference count is 0 """
         if not self._handle is None:
-            # if not self._release_callback is None:
+            # if not self._release_native is None:
             # Protect against accessing properties
             # of partially constructed objects (May not be an issue in Python?)
             self._finalizing = True
@@ -172,29 +176,29 @@ class CffiNativeHandle(NativeHandle):
         self.__dispose_impl(True)
 
 
-class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
+class DeletableCffiNativeHandle(CffiNativeHandle):
     """ Reference counting wrapper class for CFFI pointers
 
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
         _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
-        _release_callback (callable): function to call on deleting this wrapper. The function should have one argument accepting the object _handle.
+        _release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object _handle.
     """
     # """ a global function that can be called to release an external pointer """
-    # release_callback = None
+    # release_native = None
 
-    def __init__(self, handle:CffiData, release_callback:Callable[[CffiData],None], type_id:str=None, prior_ref_count:int = 0):
+    def __init__(self, handle:CffiData, release_native:Callable[[CffiData],None], type_id:str=None, prior_ref_count:int = 0):
         """New reference counter for a CFFI resource handle.
 
         Args:
             handle (CffiData): The handle (expected cffi pointer) to the native resource.
-            release_callback (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
+            release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
             type_id (str, optional): [description]. An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation. Defaults to None.
             prior_ref_count (int, optional): [description]. The initial reference count. Defaults to 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
-        super(CallbackDeleteCffiNativeHandle, self).__init__(handle, type_id, prior_ref_count)
-        self._release_callback:Callable[[CffiData],None] = release_callback
+        super(DeletableCffiNativeHandle, self).__init__(handle, type_id, prior_ref_count)
+        self._release_native:Callable[[CffiData],None] = release_native
         self._set_handle(handle, prior_ref_count)
 
     def _release_handle(self) -> bool:
@@ -205,22 +209,22 @@ class CallbackDeleteCffiNativeHandle(CffiNativeHandle):
         """
         if self._handle is None:
             return False
-        if self._release_callback is None:
+        if self._release_native is None:
             return False
-        if self._release_callback is not None:
-            self._release_callback(self._handle) # TODO are trapped exceptions acceptable here? 
+        if self._release_native is not None:
+            self._release_native(self._handle) # TODO are trapped exceptions acceptable here? 
             return True
 
-def wrap_cffi_native_handle(obj:Union[CffiData,Any], type_id:str='', release_callback:Callable[[CffiData],None] = None) -> Union[CallbackDeleteCffiNativeHandle,Any]:
+def wrap_cffi_native_handle(obj:Union[CffiData,Any], type_id:str='', release_native:Callable[[CffiData],None] = None) -> Union[DeletableCffiNativeHandle,Any]:
     """ Create a reference counting wrapper around an object if this object is a CFFI pointer
 
     Args:
         obj (Union[CffiData,Any]): An object, which will be wrapped if this is a CFFI pointer, i.e. an instance of `CffiData`
-        release_callback (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
+        release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
         type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
     """
     if isinstance(obj, FFI.CData):
-        return CallbackDeleteCffiNativeHandle(obj, release_callback=release_callback, type_id=type_id) 
+        return DeletableCffiNativeHandle(obj, release_native=release_native, type_id=type_id) 
     else:
         return obj
 

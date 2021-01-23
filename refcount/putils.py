@@ -28,7 +28,7 @@ def library_short_filename(library_name:str) -> str:
         else:
             return 'lib{}.so'.format(library_name)
 
-def find_full_path(name, dir_path = None):
+def find_full_path(name:str, dir_path:str = None):
     """Wrapper around ctypes.util.find_library 
     May need to work around  https://bugs.python.org/issue19317
     """

@@ -1,0 +1,64 @@
+@startuml refcount-principles
+
+' left to right direction
+' right to left direction
+
+package refcount.base {
+  class ReferenceCounter{
+    {field} _ref_count
+  }
+
+  class NativeHandle{
+    {field} _handle
+  }
+}
+
+package refcount.interop {
+  class CffiNativeHandle
+  class DeletableCffiNativeHandle {
+    {field} _release_native
+  }
+}
+
+package C_API {
+  class opaque_pointer
+  {
+    void* or struct*
+  }
+}
+
+package C++ {
+  class CppClass
+}
+
+
+NativeHandle <|-- CffiNativeHandle
+CffiNativeHandle <|-- DeletableCffiNativeHandle
+ReferenceCounter <|-- NativeHandle
+
+NativeHandle -> opaque_pointer
+opaque_pointer -> CppClass
+
+' package waa.forecast {
+'   class InflowForecasting
+'   class RuleCurves
+
+'   class ForecastSimulation
+'   ' class ForecastInputs
+
+'   InflowForecasting *-- ForecastDateSelection
+'   RuleCurves *-- ForecastDateSelection
+
+'   ForecastSimulation --|> ForecastInflows
+'   ForecastSimulation *-- RuleCurves
+'   ForecastSimulation *-- ReservoirTargets
+
+' }
+
+' package "waasrv" #DDDDDD {
+'   Object <|-- ArrayList
+' }
+
+
+@enduml
+

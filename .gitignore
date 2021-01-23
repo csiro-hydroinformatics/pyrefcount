@@ -31,6 +31,8 @@ src/obj/
 *.code-workspace
 .vscode/
 build/
+_build/
+out/
 dist/
 refcount.egg-info/
 .pytest_cache/
