@@ -7,7 +7,7 @@
 
 This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, **it is deceptively complicated to do so properly** and not end up with memory leaks or crashes. This package offers structured options for reliably managing external native resources. Surprisingly I could not locate an existing package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
 
-`refcount` at version 0.7 includes classes using [cffi](https://cffi.readthedocs.io/). Other low-level interoperability mechanisms may be added.
+`refcount` from version 0.7 includes classes using [cffi](https://cffi.readthedocs.io/). Other low-level interoperability mechanisms may well be added in the future.
 
 ## License
 

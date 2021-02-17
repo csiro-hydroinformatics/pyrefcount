@@ -1,29 +1,45 @@
 refcount
 ========
 
-A Python package for reference counting native resources
-
-|license| |Documentation Status| |status| master: |Build status -
+|license| |status| |Documentation Status| master: |Build status -
 master| testing: |Build status - devel|
+
+.. figure:: ./docs/img/refcount-principles.png
+   :alt: Reference counted native handles
+
+   Reference counted native handles
 
 This package is primarily for managing resources in native libraries,
 written for instance in C++, from Python. While it boils down to
-“simply” maintaining a set of counters, it is practically complicated to
-properly do so and not end up with memory leak or crashes. This package
-aims to offer structured options for managing external native resources
-- I could not locate a pypi package doing just what I needed. Other use
-cases requiring reference counting, aside from native library resources,
-may benefit from reusing and extending classes in ``refcount``.
+“simply” maintaining a set of counters, **it is deceptively complicated
+to do so properly** and not end up with memory leaks or crashes. This
+package offers structured options for reliably managing external native
+resources. Surprisingly I could not locate an existing package doing
+just what I needed. Other use cases requiring reference counting, aside
+from native library resources, may benefit from reusing and extending
+classes in ``refcount``.
+
+``refcount`` from version 0.7 includes classes using
+`cffi <https://cffi.readthedocs.io/>`__. Other low-level
+interoperability mechanisms may well be added in the future.
 
 License
 -------
 
-MIT-derived (see `License.txt <./LICENSE.txt>`__)
+MIT (see
+`License.txt <https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt>`__)
 
 Documentation
 -------------
 
-`pyrefcount at readthedocs <https://pyrefcount.readthedocs.io>`__
+Hosted at
+`pyrefcount.readthedocs.io <https://pyrefcount.readthedocs.io/en/latest/?badge=latest>`__
+
+Source code
+-----------
+
+The code repository is on
+`GitHub <https://github.com/csiro-hydroinformatics/pyrefcount>`__.
 
 Installation
 ------------
@@ -39,11 +55,12 @@ From source:
    pip install -r requirements.txt
    python setup.py install
 
-Example
--------
+Sample use
+----------
 
-A canonical illustration of the use of this package, based on one of the
-unit tests. Say we have a C++ library with objects and a C API:
+The following example is based on one of the unit tests.
+
+Say we have a C++ library with objects and a C API:
 
 .. code:: c++
 
@@ -130,42 +147,46 @@ design is:
            return True
 
 Related work
-~~~~~~~~~~~~
+------------
 
-Ancestry
-^^^^^^^^
+Ancestry, acknowledgements
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This python package ``refcount`` actually spawned from prior work for
-interoperability between C++, R and .NET. The port to Python was also
-influenced by work authored by Kevin Plastow and undertaken at the
-Australian Bureau of Meteorology for C/C++/Python interop using
-``cffi``.
+interoperability between C++, R and .NET
+(`R.NET <https://github.com/rdotnet/rdotnet>`__)
 
-Readers may also want to look at:
+``refcount`` features using ``cffi`` were also significantly informed by
+Kevin Plastow’s
+`work <https://search.informit.com.au/documentSummary;dn=823898220073899;res=IELENG>`__
+while he was at the Australian Bureau of Meteorology; this contribution
+is gratefully acknowledged.
 
--  a nuget package
+In you have native interop needs you may also want to look at:
+
+-  the nuget package
    `dynamic-interop-dll <https://github.com/rdotnet/dynamic-interop-dll>`__
    for .NET/native interop.
--  A set of mostly c++ software `tools for interop with
+-  a set of mostly c++ software `tools for interop with
    C/C++ <https://github.com/csiro-hydroinformatics/rcpp-interop-commons>`__
--  A C# library for `generating interop glue code on top of C API glue
+-  a C# library for `generating interop glue code on top of C API glue
    code <https://github.com/csiro-hydroinformatics/c-api-wrapper-generation>`__.
 
 Other python packages
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~
 
-While this present package was authored in part because no existing
-prior (Python) work could quite fit the need, there are packages that
-may better address your particular need:
+``refcount`` was created in part because no existing prior (Python) work
+could quite fit the need. There are however packages that may better
+address your particular need:
 
 -  `infi.pyutils <https://pypi.org/project/infi.pyutils/>`__ contains a
    reference counting class.
 
 .. |license| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt
+.. |status| image:: https://img.shields.io/badge/status-beta-blue.svg
 .. |Documentation Status| image:: https://readthedocs.org/projects/pyrefcount/badge/?version=latest
    :target: https://pyrefcount.readthedocs.io/en/latest/?badge=latest
-.. |status| image:: https://img.shields.io/badge/status-beta-blue.svg
 .. |Build status - master| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true
    :target: https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master
 .. |Build status - devel| image:: https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true
