@@ -117,7 +117,7 @@ def prepend_path_env(
     Returns:
         str: Content (set of paths), typically for a updating/setting an environment variable
     """
-    path_sep = os.path_sep
+    path_sep = os.pathsep
     if isinstance(added_paths, str):
         added_paths = [added_paths]
     prior_path_env = os.environ.get(to_env)
