@@ -155,6 +155,17 @@ class CffiNativeHandle(NativeHandle):
             'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
         )
 
+    @property
+    def ptr(self):
+        """ Return the pointer (cffi object) """
+        return self._handle
+
+    @property
+    def obj(self):
+        """ Return the object pointed to (cffi object) """
+        return self._handle[0]
+
+
     def __repr__(self):
         """ string representation """
         return str(self)
@@ -212,10 +223,10 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         self._set_handle(handle, prior_ref_count)
 
     def _release_handle(self) -> bool:
-        """Manually decrements the reference counter. Triggers disposal if reference count is reaching down to zero.
+        """Release the handle, dispose of the native resource.
 
         Returns:
-            bool: Overriding implementation should return True if the release of native resources handle was successful, False otherwise.
+            bool: Return True if the release of native resources handle was successful, False otherwise.
         """
         if self._handle is None:
             return False
@@ -226,6 +237,45 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
                 self._handle
             )  # TODO are trapped exceptions acceptable here?
             return True
+
+
+class OwningCffiNativeHandle(CffiNativeHandle):
+    """Reference counting wrapper class for CFFI pointers that own and already manage the native memory
+
+    Attributes:
+        _handle (object): The handle (e.g. cffi pointer) to the native resource.
+        _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
+    """
+
+    # """ a global function that can be called to release an external pointer """
+    # release_native = None
+
+    def __init__(
+        self,
+        handle: CffiData,
+        type_id: str = None,
+        prior_ref_count: int = 0,
+    ):
+        """Reference counting wrapper class for CFFI pointers that own and already manage the native memory
+
+        Args:
+            handle (CffiData): The handle (expected cffi pointer) to the native resource.
+            type_id (str, optional): [description]. An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation. Defaults to None.
+            prior_ref_count (int, optional): [description]. The initial reference count. Defaults to 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
+        """
+        super(OwningCffiNativeHandle, self).__init__(
+            handle, type_id, prior_ref_count
+        )
+        self._set_handle(handle, prior_ref_count)
+
+    def _release_handle(self) -> bool:
+        """Does nothing, as the wrapped cffi pointer is already owning and managing the memory
+
+        Returns:
+            bool: Always returns True.
+        """
+        return True
 
 
 def wrap_cffi_native_handle(
