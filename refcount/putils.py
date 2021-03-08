@@ -33,10 +33,6 @@ def library_short_filename(library_name: str) -> str:
         else:
             return "lib{}.so".format(library_name)
 
-    """Wrapper around ctypes.util.find_library
-    May need to work around  https://bugs.python.org/issue19317
-    """
-
 def find_full_path(name: str) -> Union[str, None]:
     """Find the full path of a library in under the python 
         installation directory, or as devised by ctypes.find_library
@@ -132,3 +128,77 @@ def prepend_path_env(
     # TODO: check for duplicate folders, perhaps.
     new_env_val = path_sep.join(new_paths)
     return new_env_val
+
+# TODO: is that of any use still?? refactored out from uchronia and co. , but appears unused.
+# def find_first_full_path(native_lib_file_name, readable_lib_name = "native library", env_var_name = ""):
+#     if os.path.isabs(native_lib_file_name):
+#         if (not os.path.exists(native_lib_file_name)):
+#             raise FileNotFoundError("Could not find specified file {0} to load for {1}".format(native_lib_file_name, readable_lib_name))
+#         return native_lib_file_name
+#     if (native_lib_file_name is None or native_lib_file_name == ''):
+#         raise FileNotFoundError("Invalid empty file name to load for {0}".format(readable_lib_name))
+#     native_lib_file_name = _find_first_full_path(native_lib_file_name, env_var_name)
+#     return native_lib_file_name
+
+# def _find_first_full_path(short_file_name, env_var_name = ""):
+#     if (none_or_empty(short_file_name)):
+#         raise Exception("short_file_name")
+#     lib_search_path_env_var = env_var_name
+#     if (none_or_empty(lib_search_path_env_var)):
+#         if(sys.platform == 'win32'):
+#             lib_search_path_env_var = "PATH"
+#         else:
+#             lib_search_path_env_var =  "LD_LIBRARY_PATH"
+#     candidates = find_full_path_env_var(short_file_name, lib_search_path_env_var)
+#     if ((len(candidates) == 0) and (sys.platform == 'win32')):
+#         if (os.path.exists(short_file_name)):
+#             candidates = [short_file_name]
+#     if (len(candidates) == 0):
+#         raise FileNotFoundError("Could not find native library named '{0}' within the directories specified in the '{1}' environment variable".format(short_file_name, lib_search_path_env_var))
+#     else:
+#         return candidates[0]
+
+# def find_full_path_env_var(dll_short_name, env_var_name="PATH"):
+#     x = os.environ.get(env_var_name)
+#     if x is not None:
+#         search_paths = x.split(os.pathsep)
+#     else:
+#         search_pathsPathUpdater = [""]
+#     return find_full_paths(dll_short_name, search_paths)
+
+# def find_full_paths(dll_short_name, directories = []):
+#     full_paths = [os.path.join(d, dll_short_name) for d in directories]
+#     return [x for x in full_paths if os.path.exists(x)]
+
+# def none_or_empty(x):
+#     return (x is None or x == '')
+
+
+# # The following is useful, but idiosyncratic. Consider and rethink..
+# class EnvironmenVariablesUpdates:
+
+#     def __init__(self) -> None:
+#         pass
+
+#     def build_new_path_env (self, from_env='LIBRARY_PATH', to_env='PATH'):
+#         if(sys.platform == 'win32'):
+#             path_sep = ';'
+#             shared_lib_paths = os.environ.get(from_env)
+#             if(shared_lib_paths is not None):
+#                 arch = os.environ["PROCESSOR_ARCHITECTURE"]
+#                 if arch == 'AMD64':
+#                     subfolder = '64'
+#                 else:
+#                     subfolder = '32'
+#                 shared_lib_paths_vec = shared_lib_paths.split(path_sep)
+#                 return prepend_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
+
+#     def update_path_windows (self, from_env='LIBRARY_PATH', to_env='PATH'):
+#         if(sys.platform == 'win32'):
+#             os.environ[to_env] = build_new_path_env(from_env, to_env)
+
+
+
+
+
+
