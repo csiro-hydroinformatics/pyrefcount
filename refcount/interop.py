@@ -375,3 +375,50 @@ def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str):
 #         raise Exception(cffi_arg_error_external_obj_type(obj_wrapper, expected_type_id)
 #     else:
 #         return unwrap_cffi_native_handle (obj_wrapper, stringent=True)
+
+class GenericWrapper:
+    """A pass-through wrapper for python objects that are ready for C interop. "bytes" can be passed as C 'char*'
+
+    This is mostly a facility to generate glue code more easily 
+    """    
+
+    def __init__(self, handle: Any):
+        self._handle = handle
+
+    @property
+    def ptr(self):
+        return self._handle
+
+def wrap_as_pointer_handle(
+    obj_wrapper: Any, stringent: bool = False
+) -> Union[CffiNativeHandle, OwningCffiNativeHandle, GenericWrapper, None]:
+    """Wrap an object, if need be, so that its C API pointer appears accessible via a 'ptr' property
+
+    Args:
+        obj_wrapper (Any): Object to wrap, if necessary
+        stringent (bool, optional): Throws an exception if the input type is unhandled. Defaults to False.
+
+    Raises:
+        TypeError: neither a CffiNativeHandle nor a CFFI external pointer, nor bytes
+
+    Returns:
+        Union[CffiNativeHandle, OwningCffiNativeHandle, GenericWrapper, None]: wrapped object or None
+    """    
+    # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters.
+    # Reassess approach, even if other C API function will still catch the issue of null ptrs.
+    if obj_wrapper is None:
+        return None
+    elif isinstance(obj_wrapper, CffiNativeHandle):
+        return obj_wrapper
+    elif isinstance(obj_wrapper, FFI.CData):
+        return OwningCffiNativeHandle(obj_wrapper)
+    elif isinstance(obj_wrapper, bytes):
+        return GenericWrapper(obj_wrapper)
+    else:
+        if stringent:
+            raise TypeError(
+                "Argument is neither a CffiNativeHandle nor a CFFI external pointer, nor bytes"
+            )
+        else:
+            return obj_wrapper
+
