@@ -150,10 +150,8 @@ class CffiNativeHandle(NativeHandle):
     def __str__(self):
         """ string representation """
         if self.type_id is None or self.type_id == "":
-            return "CFFI pointer handle to a native pointer"
-        return (
-            'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
-        )
+            return "CFFI pointer handle to a native pointer " + str(self._handle)
+        return 'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
 
     @property
     def ptr(self):
@@ -422,3 +420,18 @@ def wrap_as_pointer_handle(
         else:
             return obj_wrapper
 
+
+def type_error_cffi(x:Union[CffiNativeHandle, Any], expected_type:str) -> str:
+    """Build an error message for situations where a cffi pointer handler is not that, or not of the expected type
+
+    Args:
+        x (Union[CffiNativeHandle, Any]): actual object that is not of the expected type or underlying type for the external pointer.
+        expected_type (str): underlying type expected for the CFFI pointer handler
+
+    Returns:
+        str: error message that the caller can use to report the issue
+    """
+    if not is_cffi_native_handle(x):
+        return 'Expected type "' + expected_type + '" but got object of type "', type(x)+ '"'
+    else:
+        return 'Expected a cffi native handle with underlying type "' + expected_type + '" but got cffi native handle with type "' + x.type_id
