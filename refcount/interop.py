@@ -1,4 +1,4 @@
-from typing import Any, Callable, Union
+from typing import Any, Callable, Dict, Union
 from cffi import FFI
 from refcount.base import NativeHandle
 
@@ -435,3 +435,32 @@ def type_error_cffi(x:Union[CffiNativeHandle, Any], expected_type:str) -> str:
         return 'Expected type "' + expected_type + '" but got object of type "', type(x)+ '"'
     else:
         return 'Expected a cffi native handle with underlying type "' + expected_type + '" but got cffi native handle with type "' + x.type_id
+
+
+class CffiWrapperFactory:
+
+    def __init__(self, api_type_wrapper:Dict[str,Any], strict_wrapping:bool=False) -> None:
+        self._strict_wrapping = False
+        self._api_type_wrapper = api_type_wrapper
+
+    def create_wrapper(self, obj: Any, type_id: str, release_native: Callable):
+        if type_id is None:
+            raise ValueError("Type ID provided cannot be None")
+        if not type_id in self._api_type_wrapper.keys():
+            if self._strict_wrapping:
+                raise ValueError("Type ID {} is unknown".format(type_id))
+            else:
+                return wrap_cffi_native_handle(obj, type_id, release_native)
+        wrapper_type = self._api_type_wrapper[type_id]
+        if wrapper_type is None:
+            if self._strict_wrapping:
+                raise NotImplementedError(
+                    "Python object wrapper for foreign type ID {} is not yet implemented".format(
+                        wrapper_type
+                    )
+                )
+            else:
+                return wrap_cffi_native_handle(obj, type_id, release_native)
+        else:
+            return wrapper_type(obj, release_native, type_id)
+
