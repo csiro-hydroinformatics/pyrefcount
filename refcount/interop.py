@@ -464,3 +464,5 @@ class CffiWrapperFactory:
         else:
             return wrapper_type(obj, release_native, type_id)
 
+
+WrapperCreationFunction = Callable[[Any, str, Callable], DeletableCffiNativeHandle]
