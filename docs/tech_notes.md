@@ -25,14 +25,14 @@ my_env_name=testpypirefcount
 ```sh
 conda create --name ${my_env_name} python=3.6
 conda activate ${my_env_name}
-conda install  wheel twine six pytest
+conda install -c conda-forge wheel twine six pytest
 ```
 
 ```sh
 conda activate ${my_env_name}
 cd ~/src/github_jm/pyrefcount
 rm dist/*
-python3 setup.py sdist bdist_wheel
+python setup.py sdist bdist_wheel
 rm dist/*.tar
 ```
 
