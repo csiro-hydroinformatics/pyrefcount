@@ -405,7 +405,7 @@ def wrap_as_pointer_handle(
     # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters.
     # Reassess approach, even if other C API function will still catch the issue of null ptrs.
     if obj_wrapper is None:
-        return None
+        return GenericWrapper(FFI.NULL)
     elif isinstance(obj_wrapper, CffiNativeHandle):
         return obj_wrapper
     elif isinstance(obj_wrapper, FFI.CData):
