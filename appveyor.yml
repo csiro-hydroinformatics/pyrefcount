@@ -1,19 +1,18 @@
 version: 1.0.{build}
 
 image:
-- Visual Studio 2017
-# - Visual Studio 2015
+- Visual Studio 2019
 
 platform: x64
 
 environment:
   matrix:
-      - PYTHON: "C:\\Python37-x64"
-        PYTHON_VERSION: "3.7.x"
+      - PYTHON: "C:\\Python39-x64"
+        PYTHON_VERSION: "3.9.x"
         ARCH: "64"
-        WINDOWS_SDK_VERSION: "v7.1"
+        # WINDOWS_SDK_VERSION: "v7.1"
         PLAT_NAME: "win-amd64"
-        PY_TAG: "cp37"
+        PY_TAG: "cp39"
 
 branches:
   only:
@@ -38,7 +37,7 @@ install:
 
 build_script:
 - cmd: >-
-    msbuild tests\test_native_library\test_native_library.sln /p:Platform="x64" /p:Configuration=Debug /consoleloggerparameters:ErrorsOnly
+    msbuild tests\test_native_library\test_native_library.sln /p:Platform="x64" /p:Configuration=Debug /consoleloggerparameters:Summary
 
 test_script:
   - "%PYTHON%/python run_tests.py"
