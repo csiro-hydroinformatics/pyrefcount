@@ -1,13 +1,12 @@
-# refcount
+# refcount - Python classes for reference counting
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-beta-blue.svg) [![Documentation Status](https://readthedocs.org/projects/pyrefcount/badge/?version=latest)](https://pyrefcount.readthedocs.io/en/latest/?badge=latest) master: [![Build status - master](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/master) testing: [![Build status - devel](https://ci.appveyor.com/api/projects/status/vmwq7xarxxj8s564/branch/testing?svg=true)](https://ci.appveyor.com/project/jmp75/pyrefcount/branch/testing)
-
 
 ![Reference counted native handles](./docs/img/refcount-principles.png "Reference counted native handles")
 
 This package is primarily for managing resources in native libraries, written for instance in C++, from Python. While it boils down to "simply" maintaining a set of counters, **it is deceptively complicated to do so properly** and not end up with memory leaks or crashes. This package offers structured options for reliably managing external native resources. Surprisingly I could not locate an existing package doing just what I needed. Other use cases requiring reference counting, aside from native library resources, may benefit from reusing and extending classes in `refcount`.
 
-`refcount` from version 0.7 includes classes using [cffi](https://cffi.readthedocs.io/). Other low-level interoperability mechanisms may well be added in the future.
+`refcount` ( >=0.7) includes classes using [cffi](https://cffi.readthedocs.io/). Other low-level interoperability mechanisms may well be added in the future.
 
 ## License
 
@@ -23,20 +22,30 @@ The code repository is on [GitHub](https://github.com/csiro-hydroinformatics/pyr
 
 ## Installation
 
+### conda-forge
+
+Using `conda` or `mamba`:
+
+```sh
+mamba install -c conda-forge refcount
+```
+
+### pypi
+
 ```sh
 pip install refcount
 ```
 
-From source:
+### From source (development)
 
 ```sh
 pip install -r requirements.txt
-python setup.py install
+pip install -e .
 ```
 
 ## Sample use
 
-The following example is based on one of the unit tests. 
+The following example is based on one of the unit tests.
 
 Say we have a C++ library with objects and a C API:
 

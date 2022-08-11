@@ -1,3 +1,6 @@
+"""Implementation of reference counting classes for external resources accessed via interoperability software such as cffi
+"""
+
 from typing import Any, Callable, Dict, Union
 from cffi import FFI
 from refcount.base import NativeHandle
@@ -36,10 +39,7 @@ class CffiNativeHandle(NativeHandle):
 
     # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/rdotnet/dynamic-interop-dll
 
-    # """ a global function that can be called to release an external pointer """
-    # release_native = None
-
-    def __init__(self, handle: CffiData, type_id: str = None, prior_ref_count: int = 0):
+    def __init__(self, handle: "CffiData", type_id: str = None, prior_ref_count: int = 0):
         """Initialize a reference counter for a resource handle, with an initial reference count.
 
         Args:
@@ -51,16 +51,12 @@ class CffiNativeHandle(NativeHandle):
         # TODO checks on handle
         self._type_id: str = type_id
         self._finalizing: bool = False
-        self._handle: CffiData = None
-        # if release_native is None:
-        #     self._release_native = CffiNativeHandle.release_native
-        # else:
-        #     self._release_native = release_native
+        self._handle: "CffiData" = None
         if handle is None:
-            return  # defer setting handle to the inheritor.
+            return  # defer setting the handle to the inheritor.
         self._set_handle(handle, prior_ref_count)
 
-    def _is_valid_handle(self, h: CffiData) -> bool:
+    def _is_valid_handle(self, h: "CffiData") -> bool:
         """Checks if the handle is a CFFI CData pointer, acceptable handle for this wrapper.
 
         Args:
@@ -81,8 +77,6 @@ class CffiNativeHandle(NativeHandle):
         if self._ref_count <= 0:
             if self._release_handle():
                 self._handle = None
-                # if (!_finalizing)
-                # GC.SuppressFinalize(this)
 
     @property
     def disposed(self):
@@ -113,10 +107,9 @@ class CffiNativeHandle(NativeHandle):
         """
         # See also https://stackoverflow.com/questions/4714136/how-to-implement-virtual-methods-in-python
         # May want to make this abstract using ABC - we'll see.
-        raise NotImplementedError()
-        return False
+        raise NotImplementedError("method _release_handle must be overriden by child classes")
 
-    def get_handle(self) -> Union[CffiData, None]:
+    def get_handle(self) -> Union["CffiData", None]:
         """Gets the underlying low-level CFFI handle this object wraps
 
         Returns:
@@ -196,13 +189,10 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         _release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object _handle.
     """
 
-    # """ a global function that can be called to release an external pointer """
-    # release_native = None
-
     def __init__(
         self,
-        handle: CffiData,
-        release_native: Callable[[CffiData], None],
+        handle: "CffiData",
+        release_native: Callable[["CffiData"], None],
         type_id: str = None,
         prior_ref_count: int = 0,
     ):
@@ -217,7 +207,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         super(DeletableCffiNativeHandle, self).__init__(
             handle, type_id, prior_ref_count
         )
-        self._release_native: Callable[[CffiData], None] = release_native
+        self._release_native: Callable[["CffiData"], None] = release_native
         self._set_handle(handle, prior_ref_count)
 
     def _release_handle(self) -> bool:
@@ -251,7 +241,7 @@ class OwningCffiNativeHandle(CffiNativeHandle):
 
     def __init__(
         self,
-        handle: CffiData,
+        handle: "CffiData",
         type_id: str = None,
         prior_ref_count: int = 0,
     ):
@@ -277,9 +267,9 @@ class OwningCffiNativeHandle(CffiNativeHandle):
 
 
 def wrap_cffi_native_handle(
-    obj: Union[CffiData, Any],
+    obj: Union["CffiData", Any],
     type_id: str = "",
-    release_native: Callable[[CffiData], None] = None,
+    release_native: Callable[["CffiData"], None] = None,
 ) -> Union[DeletableCffiNativeHandle, Any]:
     """Create a reference counting wrapper around an object if this object is a CFFI pointer
 
@@ -314,7 +304,7 @@ def is_cffi_native_handle(x: Any, type_id: str = "") -> bool:
 
 def unwrap_cffi_native_handle(
     obj_wrapper: Any, stringent: bool = False
-) -> Union[CffiData, Any, None]:
+) -> Union["CffiData", Any, None]:
     """Unwrap a reference counting wrapper and returns its CFFI pointer if it is found (wrapped or 'raw')
 
     Args:

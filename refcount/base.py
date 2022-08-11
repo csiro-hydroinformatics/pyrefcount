@@ -1,3 +1,6 @@
+"""Base classes for reference counting
+"""
+
 from typing import Any
 
 
@@ -9,7 +12,7 @@ class ReferenceCounter(object):
     """
 
     def __init__(self, prior_ref_count: int = 0):
-        """initialize this with an initial reference count.
+        """Initialize this with an initial reference count.
 
         Args:
             prior_ref_count (int): the initial reference count. Default 0 if this object is sole responsible for the lifecycle of the resource.
@@ -72,7 +75,7 @@ class NativeHandle(ReferenceCounter):
             error message when a handle is not a valid object.
         """
         if not self._is_valid_handle(handle):
-            raise Exception("The handle argument is not a valid handle")
+            raise RuntimeError("The specified handle argument is not a valid handle")
         self._handle = handle
         self._ref_count = prior_ref_count + 1
 
@@ -85,4 +88,4 @@ class NativeHandle(ReferenceCounter):
         """
         # See also https://stackoverflow.com/questions/4714136/how-to-implement-virtual-methods-in-python
         # May want to make this abstract using ABC - we'll see.
-        raise NotImplementedError()
+        raise NotImplementedError("method _is_valid_handle must be overriden by child classes")

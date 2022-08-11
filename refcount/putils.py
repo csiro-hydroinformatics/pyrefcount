@@ -20,13 +20,13 @@ def library_short_filename(library_name: str) -> str:
             function  as 'libR.so' on Linux and 'R.dll' on Windows
 
     Raises:
-        Exception: invalid argument
+        ValueError: invalid argument
 
     Returns:
         str: expected short file name for the library, for this platform
     """
     if library_name is None:
-        raise Exception("library_name cannot be None")
+        raise ValueError("library_name cannot be None")
     else:
         if sys.platform == "win32":
             return "{}.dll".format(library_name)
