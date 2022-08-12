@@ -28,10 +28,11 @@ install:
   - set PATH=%PYTHON%\\scripts;%PATH%
 
   # Download things we absolutely need
-  - pip install cffi pytest
+  - pip install poetry cffi pytest
 
   # Now install refcount
-  - "%PYTHON%/python setup.py install"
+  # - "%PYTHON%/python setup.py install"
+  - poetry install
 
   - ECHO "Installed refcount!"
 
@@ -40,7 +41,8 @@ build_script:
     msbuild tests\test_native_library\test_native_library.sln /p:Platform="x64" /p:Configuration=Debug /consoleloggerparameters:Summary
 
 test_script:
-  - "%PYTHON%/python run_tests.py"
+  # - "%PYTHON%/python run_tests.py"
+  - poetry run pytest tests/ --cov=refcount --cov-report=xml
 
 # after_test:
 #   - ECHO "DONE!"
