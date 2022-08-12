@@ -43,8 +43,11 @@ build_script:
 test_script:
   # - "%PYTHON%/python run_tests.py"
   - poetry run pytest tests/ --cov=refcount --cov-report=xml
+  - poetry run mypy .
 
-# after_test:
+after_test:
+  - ps: $ProgressPreference = 'SilentlyContinue' Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe .\codecov.exe
+
 #   - ECHO "DONE!"
 #   - ECHO "BUILDING WHEELS..."
 #   - "%PYTHON%/python setup.py sdist bdist_wheel --plat-name=%PLAT_NAME% --python-tag=%PY_TAG%"

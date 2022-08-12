@@ -13,7 +13,7 @@ else:
     raise RuntimeError(f"Platform {sys.platform} is not yet supported")
 
 
-def test_library_short_filename():
+def test_library_short_filename() -> None:
     fname = library_short_filename("test_native_library")
     if sys.platform == "win32":
         assert fname == "test_native_library.dll"

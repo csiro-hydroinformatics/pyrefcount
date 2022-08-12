@@ -100,34 +100,34 @@ def find_full_path(name: str) -> Union[str, None]:
 #     return find_full_paths(dll_short_name, search_paths)
 
 
-# def prepend_path_env(
-#     added_paths: Union[str, List[str]], subfolder: str = None, to_env: str = "PATH"
-# ) -> str:
-#     """Build a new list of directory paths, prepending prior to an existing env var with paths.
+def prepend_path_env(
+    added_paths: Union[str, List[str]], subfolder: str = None, to_env: str = "PATH"
+) -> str:
+    """Build a new list of directory paths, prepending prior to an existing env var with paths.
 
-#     Args:
-#         added_paths (Union[str,List[str]]): paths prepended
-#         subfolder (str, optional): Optional subfolder name to append to each in path prepended. Useful for 64/32 bits variations. Defaults to None.
-#         to_env (str, optional): Environment variable with existing Paths to start with. Defaults to 'PATH'.
+    Args:
+        added_paths (Union[str,List[str]]): paths prepended
+        subfolder (str, optional): Optional subfolder name to append to each in path prepended. Useful for 64/32 bits variations. Defaults to None.
+        to_env (str, optional): Environment variable with existing Paths to start with. Defaults to 'PATH'.
 
-#     Returns:
-#         str: Content (set of paths), typically for a updating/setting an environment variable
-#     """
-#     path_sep = os.pathsep
-#     if isinstance(added_paths, str):
-#         added_paths = [added_paths]
-#     prior_path_env = os.environ.get(to_env)
-#     if prior_path_env is not None:
-#         prior_paths = prior_path_env.split(path_sep)
-#     else:
-#         prior_paths = []
-#     if subfolder is not None:
-#         added_paths = [os.path.join(x, subfolder) for x in added_paths]
-#     added_paths = [x for x in added_paths if os.path.exists(x)]
-#     new_paths = prior_paths + added_paths
-#     # TODO: check for duplicate folders, perhaps.
-#     new_env_val = path_sep.join(new_paths)
-#     return new_env_val
+    Returns:
+        str: Content (set of paths), typically for a updating/setting an environment variable
+    """
+    path_sep = os.pathsep
+    if isinstance(added_paths, str):
+        added_paths = [added_paths]
+    prior_path_env = os.environ.get(to_env)
+    if prior_path_env is not None:
+        prior_paths = prior_path_env.split(path_sep)
+    else:
+        prior_paths = []
+    if subfolder is not None:
+        added_paths = [os.path.join(x, subfolder) for x in added_paths]
+    added_paths = [x for x in added_paths if os.path.exists(x)]
+    new_paths = prior_paths + added_paths
+    # TODO: check for duplicate folders, perhaps.
+    new_env_val = path_sep.join(new_paths)
+    return new_env_val
 
 # TODO: is that of any use still?? refactored out from uchronia and co. , but appears unused.
 # def find_first_full_path(native_lib_file_name, readable_lib_name = "native library", env_var_name = ""):
@@ -175,7 +175,7 @@ def find_full_path(name: str) -> Union[str, None]:
 
 
 # # The following is useful, but idiosyncratic. Consider and rethink.
-def build_new_path_env (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname='unknown.dll') -> str:
+def build_new_path_env (from_env:str='LIBRARY_PATH', to_env:str='PATH', lib_short_fname:str='unknown.dll') -> str:
     """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
     Args:
@@ -200,8 +200,11 @@ def build_new_path_env (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname=
             return prepend_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
         else:
             print("WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because '{2}' is not found, this is a likely cause.".format(from_env, to_env, lib_short_fname))
+            return ""
+    else:
+        return ""
 
-def update_path_windows (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname='unknown.dll') -> None:
+def update_path_windows (from_env:str='LIBRARY_PATH', to_env:str='PATH', lib_short_fname:str='unknown.dll') -> None:
     """If called on Windows, append an environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
     Args:

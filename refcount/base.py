@@ -24,7 +24,7 @@ class ReferenceCounter(object):
         """Get the current reference count"""
         return self._ref_count
 
-    def add_ref(self):
+    def add_ref(self) -> None:
         """Manually increment the reference count.
 
         Users usually have no need to call this method. They may have to if they
@@ -32,7 +32,7 @@ class ReferenceCounter(object):
         """
         self._ref_count = self._ref_count + 1
 
-    def decrement_ref(self):
+    def decrement_ref(self) -> None:
         """Manually increment the reference count.
 
         Users usually have no need to call this method. They may have to if they
@@ -64,7 +64,7 @@ class NativeHandle(ReferenceCounter):
             return  # defer setting handle to the inheritor.
         self._set_handle(handle, prior_ref_count)
 
-    def _set_handle(self, handle: Any, prior_ref_count: int = 0):
+    def _set_handle(self, handle: Any, prior_ref_count: int = 0) -> None:
         """Sets a handle, after performing checks on its suitability as a handle for this object.
 
         Args:

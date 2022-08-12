@@ -2,12 +2,14 @@
 """
 
 from typing import Any, Callable, Dict, Optional, Union
+from typing_extensions import TypeAlias 
+
 from cffi import FFI
 from refcount.base import NativeHandle
 
 # This is a Hack. I cannot use FFI.CData in type hints.
-# CffiData = Any
-CffiData = FFI().CData
+# CffiData: TypeAlias = FFI().CData
+CffiData: TypeAlias = Any
 """A dummy type to use in type hints for limited documentation purposes
 
 FFI.CData is a type, but it seems it cannot be used in type hinting.
@@ -49,7 +51,7 @@ class CffiNativeHandle(NativeHandle):
         """
         super(CffiNativeHandle, self).__init__(handle, prior_ref_count)
         # TODO checks on handle
-        self._type_id: str = type_id
+        self._type_id = type_id
         self._finalizing: bool = False
         self._handle: "CffiData" = None
         if handle is None:
@@ -64,7 +66,7 @@ class CffiNativeHandle(NativeHandle):
         """
         return isinstance(h, FFI.CData)
 
-    def __dispose_impl(self, decrement: bool):
+    def __dispose_impl(self, decrement: bool) -> None:
         """An implementation of the dispose method in a 'Dispose' software pattern. Avoids cyclic method calls.
 
         Args:
@@ -79,7 +81,7 @@ class CffiNativeHandle(NativeHandle):
                 self._handle = None
 
     @property
-    def disposed(self):
+    def disposed(self) -> bool:
         """Has the native object and memory already been disposed of.
 
         Returns:
@@ -88,7 +90,7 @@ class CffiNativeHandle(NativeHandle):
         return self._handle is None
 
     @property
-    def is_invalid(self):
+    def is_invalid(self) -> bool:
         """Is the underlying handle valid? In practice synonym with the disposed attribute.
 
         Returns:
@@ -124,7 +126,7 @@ class CffiNativeHandle(NativeHandle):
     #     return self._handle
 
     @property
-    def type_id(self) -> str:
+    def type_id(self) -> Optional[str]:
         """Return an optional type identifier for the underlying native type.
 
         This can be in practice useful to be more transparent about the underlying
@@ -140,28 +142,28 @@ class CffiNativeHandle(NativeHandle):
     #     """ Return the native object pointed to (cffi object) """
     #     return self._handle
 
-    def __str__(self):
+    def __str__(self) -> str:
         """ string representation """
         if self.type_id is None or self.type_id == "":
             return "CFFI pointer handle to a native pointer " + str(self._handle)
         return 'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
 
     @property
-    def ptr(self):
+    def ptr(self) -> 'CffiData':
         """ Return the pointer (cffi object) """
         return self._handle
 
     @property
-    def obj(self):
+    def obj(self) -> Any:
         """ Return the object pointed to (cffi object) """
         return self._handle[0]
 
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """ string representation """
         return str(self)
 
-    def __del__(self):
+    def __del__(self) -> None:
         """ destructor, triggering the release of the underlying handled resource if the reference count is 0 """
         if self._handle is not None:
             # if not self._release_native is None:
@@ -170,11 +172,11 @@ class CffiNativeHandle(NativeHandle):
             self._finalizing = True
             self.release()
 
-    def dispose(self):
+    def dispose(self) -> None:
         """Disposing of the object pointed to by the CFFI pointer (handle) if the reference counts allows it."""
         self.__dispose_impl(True)
 
-    def release(self):
+    def release(self) -> None:
         """Manually decrements the reference counter. Triggers disposal if reference count is down to zero."""
         self.__dispose_impl(True)
 
@@ -192,7 +194,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
     def __init__(
         self,
         handle: "CffiData",
-        release_native: Callable[["CffiData"], None],
+        release_native: Optional[Callable[["CffiData"], None]],
         type_id: str = None,
         prior_ref_count: int = 0,
     ):
@@ -207,7 +209,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         super(DeletableCffiNativeHandle, self).__init__(
             handle, type_id, prior_ref_count
         )
-        self._release_native: Callable[["CffiData"], None] = release_native
+        self._release_native = release_native
         self._set_handle(handle, prior_ref_count)
 
     def _release_handle(self) -> bool:
@@ -334,7 +336,7 @@ def unwrap_cffi_native_handle(
             return obj_wrapper
 
 
-def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str):
+def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str) -> str:
     """Build an error message that an unexpected object is in lieu of an expected refcount external ref object.
 
     Args:
@@ -374,7 +376,7 @@ class GenericWrapper:
         self._handle = handle
 
     @property
-    def ptr(self):
+    def ptr(self) -> Any:
         return self._handle
 
 def wrap_as_pointer_handle(
