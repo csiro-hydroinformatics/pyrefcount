@@ -174,46 +174,46 @@ def find_full_path(name: str) -> Union[str, None]:
 #     return (x is None or x == '')
 
 
-# # # The following is useful, but idiosyncratic. Consider and rethink.
-# def build_new_path_env (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname='unknown.dll') -> str:
-#     """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
+# # The following is useful, but idiosyncratic. Consider and rethink.
+def build_new_path_env (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname='unknown.dll') -> str:
+    """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
-#     Args:
-#         from_env (str, optional): name of the source environment variable specifying the location(s) of custom libraries to load. Defaults to 'LIBRARY_PATH'.
-#         to_env (str, optional): environment variable to update, most likely the Windows PATH env var. Defaults to 'PATH'.
-#         lib_short_fname (str, optional): short file name of the custom library to load. This information is optional and used only for possible warning/log output messages. Defaults to 'unknown.dll'.
+    Args:
+        from_env (str, optional): name of the source environment variable specifying the location(s) of custom libraries to load. Defaults to 'LIBRARY_PATH'.
+        to_env (str, optional): environment variable to update, most likely the Windows PATH env var. Defaults to 'PATH'.
+        lib_short_fname (str, optional): short file name of the custom library to load. This information is optional and used only for possible warning/log output messages. Defaults to 'unknown.dll'.
 
-#     Returns:
-#         str: the proposed updated content for the 'to_env' environment variable. 
-#     """    
-#     if(sys.platform == 'win32'):
-#         path_sep = ';'
-#         shared_lib_paths = os.environ.get(from_env)
-#         if(shared_lib_paths is not None):
-#             # startup_msg = appendstartup_msg(paste0('Found env var ', from_env, '=', shared_lib_paths), startup_msg)
-#             arch = os.environ["PROCESSOR_ARCHITECTURE"]
-#             if arch == 'AMD64':
-#                 subfolder = '64'
-#             else:
-#                 subfolder = '32'
-#             shared_lib_paths_vec = shared_lib_paths.split(path_sep)
-#             return prepend_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
-#         else:
-#             print("WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because '{2}' is not found, this is a likely cause.".format(from_env, to_env, lib_short_fname))
+    Returns:
+        str: the proposed updated content for the 'to_env' environment variable. 
+    """    
+    if(sys.platform == 'win32'):
+        path_sep = ';'
+        shared_lib_paths = os.environ.get(from_env)
+        if(shared_lib_paths is not None):
+            # startup_msg = appendstartup_msg(paste0('Found env var ', from_env, '=', shared_lib_paths), startup_msg)
+            arch = os.environ["PROCESSOR_ARCHITECTURE"]
+            if arch == 'AMD64':
+                subfolder = '64'
+            else:
+                subfolder = '32'
+            shared_lib_paths_vec = shared_lib_paths.split(path_sep)
+            return prepend_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
+        else:
+            print("WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because '{2}' is not found, this is a likely cause.".format(from_env, to_env, lib_short_fname))
 
-# def update_path_windows (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname='unknown.dll') -> None:
-#     """If called on Windows, append an environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
+def update_path_windows (from_env='LIBRARY_PATH', to_env='PATH', lib_short_fname='unknown.dll') -> None:
+    """If called on Windows, append an environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
-#     Args:
-#         from_env (str, optional): name of the source environment variable specifying the location(s) of custom libraries to load. Defaults to 'LIBRARY_PATH'.
-#         to_env (str, optional): environment variable to update, most likely the Windows PATH env var. Defaults to 'PATH'.
-#         lib_short_fname (str, optional): short file name of the custom library to load. This information is optional and used only for possible warning/log output messages. Defaults to 'unknown.dll'.
+    Args:
+        from_env (str, optional): name of the source environment variable specifying the location(s) of custom libraries to load. Defaults to 'LIBRARY_PATH'.
+        to_env (str, optional): environment variable to update, most likely the Windows PATH env var. Defaults to 'PATH'.
+        lib_short_fname (str, optional): short file name of the custom library to load. This information is optional and used only for possible warning/log output messages. Defaults to 'unknown.dll'.
 
-#     Returns:
-#         None
-#     """    
-#     if(sys.platform == 'win32'):
-#         os.environ[to_env] = build_new_path_env(from_env, to_env, lib_short_fname)
+    Returns:
+        None
+    """    
+    if(sys.platform == 'win32'):
+        os.environ[to_env] = build_new_path_env(from_env, to_env, lib_short_fname)
 
 
 

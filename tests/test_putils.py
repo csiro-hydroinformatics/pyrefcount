@@ -16,7 +16,7 @@ else:
 def test_library_short_filename():
     fname = library_short_filename("test_native_library")
     if sys.platform == "win32":
-        assert fname == "test_native_library"
+        assert fname == "test_native_library.dll"
     elif sys.platform == "linux":
         assert fname == "libtest_native_library.so"
     else:
