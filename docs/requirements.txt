@@ -1,6 +1,6 @@
 cffi
-mkdocs-material
-mkdocs-material-extensions
+# mkdocs-material
+# mkdocs-material-extensions
 mkdocstrings
 mkdocstrings-python
 # added by readthedocs anyway:

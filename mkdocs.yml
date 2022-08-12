@@ -10,6 +10,7 @@ plugins:
 
 nav:
   - Home: index.md
+  - Usage and Application: usage-and-applications.md.md
   - Code Documentation: code-reference.md
   - Appendix:
       - Tech Notes: tech_notes.md

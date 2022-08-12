@@ -3,6 +3,7 @@ channels:
 dependencies:
   - cffi
   - mkdocs
-  - mkdocs-material
-  - mkdocs-material-extensions
+  # - mkdocs-material
+  # - mkdocs-material-extensions
   - mkdocstrings
+  - mkdocstrings-python

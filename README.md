@@ -73,7 +73,7 @@ void release(void* obj);
 
 Starting with the end in mind, from Python we want an API hiding the low level details close to the C API, in particular avoiding managing native memory via `release` C API calls, piggybacking the python GC instead.
 
-```py
+```python
 dog = Dog()
 owner = DogOwner(dog)
 owner.say_walk()
@@ -84,7 +84,7 @@ owner = None
 
 This is doable with `refcount` and the `cffi` package. One possible design is:
 
-```py
+```python
 ut_ffi = cffi.FFI()
 
 ut_ffi.cdef('extern void* create_dog();')

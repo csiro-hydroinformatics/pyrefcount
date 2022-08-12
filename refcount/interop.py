@@ -1,7 +1,7 @@
 """Implementation of reference counting classes for external resources accessed via interoperability software such as cffi
 """
 
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Optional, Union
 from cffi import FFI
 from refcount.base import NativeHandle
 
@@ -163,7 +163,7 @@ class CffiNativeHandle(NativeHandle):
 
     def __del__(self):
         """ destructor, triggering the release of the underlying handled resource if the reference count is 0 """
-        if not self._handle is None:
+        if self._handle is not None:
             # if not self._release_native is None:
             # Protect against accessing properties
             # of partially constructed objects (May not be an issue in Python?)
@@ -327,7 +327,7 @@ def unwrap_cffi_native_handle(
         return obj_wrapper
     else:
         if stringent:
-            raise Exception(
+            raise TypeError(
                 "Argument is neither a CffiNativeHandle nor a CFFI external pointer"
             )
         else:
@@ -413,7 +413,7 @@ def wrap_as_pointer_handle(
 
 
 def type_error_cffi(x:Union[CffiNativeHandle, Any], expected_type:str) -> str:
-    """Build an error message for situations where a cffi pointer handler is not that, or not of the expected type
+    """DEPRECATED Build an error message for situations where a cffi pointer handler is not that, or not of the expected type
 
     Args:
         x (Union[CffiNativeHandle, Any]): actual object that is not of the expected type or underlying type for the external pointer.
@@ -422,22 +422,43 @@ def type_error_cffi(x:Union[CffiNativeHandle, Any], expected_type:str) -> str:
     Returns:
         str: error message that the caller can use to report the issue
     """
-    if not is_cffi_native_handle(x):
-        return 'Expected type "' + expected_type + '" but got object of type "', type(x)+ '"'
-    else:
-        return 'Expected a cffi native handle with underlying type "' + expected_type + '" but got cffi native handle with type "' + x.type_id
-
+    return cffi_arg_error_external_obj_type(x, expected_type)
 
 class CffiWrapperFactory:
-
+    """A class that creates custom python wrappers based on the type identifier of the external pointer being wrapped
+    """
     def __init__(self, api_type_wrapper:Dict[str,Any], strict_wrapping:bool=False) -> None:
-        self._strict_wrapping = False
+        """_summary_
+
+        Args:
+            api_type_wrapper (Dict[str,Any]): dictionary, mapping from type identifiers to callables, class constructors
+            strict_wrapping (bool, optional): If true, type identifiers passed at wrapper creation time `create_wrapper` 
+                must be known or exceptions are raised. If False, it falls back on creating generic wrappers. Defaults to False.
+        """        
+        self._strict_wrapping = strict_wrapping
         self._api_type_wrapper = api_type_wrapper
 
-    def create_wrapper(self, obj: Any, type_id: str, release_native: Callable):
+    def create_wrapper(self, obj: Any, type_id: str, release_native: Optional[Callable[["CffiData"], None]]) -> 'CffiNativeHandle':
+        """_summary_
+
+        Args:
+            obj (Union[CffiData,Any]): An object, which will be wrapped if this is a CFFI pointer, i.e. an instance of `CffiData`
+            type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+            release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
+
+        Raises:
+            ValueError: Missing type_id
+            ValueError: If this object is in strict mode, and `type_id` is not known in the mapping
+            NotImplementedError: `type_id` is known, but mapping to None (wrapper not yet implemented)
+            TypeError: The function to create the wrapper does not accept any argument. 
+
+        Returns:
+            CffiNativeHandle: cffi wrapper
+        """        
+        from inspect import signature
         if type_id is None:
             raise ValueError("Type ID provided cannot be None")
-        if not type_id in self._api_type_wrapper.keys():
+        if type_id not in self._api_type_wrapper.keys():
             if self._strict_wrapping:
                 raise ValueError("Type ID {} is unknown".format(type_id))
             else:
@@ -453,7 +474,16 @@ class CffiWrapperFactory:
             else:
                 return wrap_cffi_native_handle(obj, type_id, release_native)
         else:
-            return wrapper_type(obj, release_native, type_id)
+            s = signature(wrapper_type)
+            n = len(s.parameters)
+            if n == 0:
+                raise TypeError("Wrapper constructor must have at least one argument")
+            elif n == 1:
+                return wrapper_type(obj)
+            elif n == 2:
+                return wrapper_type(obj, release_native)
+            else:
+                return wrapper_type(obj, release_native, type_id)
 
 
 WrapperCreationFunction = Callable[[Any, str, Callable], DeletableCffiNativeHandle]

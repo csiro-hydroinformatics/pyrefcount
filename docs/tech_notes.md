@@ -70,7 +70,23 @@ mkdocs new .
 `mamba install -c conda-forge mkdocs-material mkdocstrings`
 `mamba install -c conda-forge mkdocs-material-extensions`
 
+## testing
+
+```sh
+# pytest tests/ --cov=refcounts # generates a warning about no coverage data cvollected
+
+coverage run -m pytest
+
+# pytest --cov=refcounts --cov-report html
+
+coverage report
+
+coverage html -d coverage_html
+```
+
 ## Troubleshooting
+
+OUTDATED no more rst.
 
 ```sh
 pandoc -f markdown -t rst README.md  > README.rst
