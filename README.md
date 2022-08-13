@@ -14,7 +14,7 @@ MIT (see [License.txt](https://github.com/csiro-hydroinformatics/pyrefcount/blob
 
 ## Documentation
 
-Hosted at [pyrefcount.readthedocs.io](https://pyrefcount.readthedocs.io/en/latest/?badge=latest)
+Hosted at [refcount via readthedocs.io](https://pyrefcount.readthedocs.io/en/latest/?badge=latest)
 
 ## Source code
 
