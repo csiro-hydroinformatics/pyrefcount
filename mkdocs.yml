@@ -1,12 +1,101 @@
-site_name: refcount
+# See 
+# https://github.com/squidfunk/mkdocs-material/blob/master/mkdocs.yml
+# for ideas.
+
+# Project information
+site_name: "refcount - Python package for reference counting"
+# site_url: https://squidfunk.github.io/mkdocs-material/
+site_author: "Jean-Michel Perraud"
+site_description: >-
+  This package is primarily for managing resources, for instance from 
+  native libraries written for instance in C++, from Python.
+
+# Repository
+repo_name: csiro-hydroinformatics/pyrefcount
+repo_url: https://github.com/csiro-hydroinformatics/pyrefcount
+
+# Copyright
+copyright: Copyright &copy; 2016 - 2022 CSIRO
 
 theme:
-  name: "readthedocs"
-  # name: "material"
+  # name: "readthedocs"
+  name: "material"
+  palette:
+    scheme: slate
+
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  features:
+    - content.code.annotate
+    # - content.tabs.link
+    - content.tooltips
+    # - header.autohide
+    # - navigation.expand
+    - navigation.indexes
+    # - navigation.instant
+    # - navigation.prune
+    - navigation.sections
+    # - navigation.tabs
+    # - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    # - toc.integrate
 
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        # See: https://mkdocstrings.github.io/python/usage/
+        python:
+          options:
+            docstring_style: google
+
+
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  # - pymdownx.emoji:
+  #     emoji_generator: !!python/name:materialx.emoji.to_svg
+  #     emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  #- pymdownx.magiclink:
+  #    repo_url_shorthand: true
+  #    user: jmp75
+  #    repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  # - pymdownx.superfences:
+  #     custom_fences:
+  #       - name: mermaid
+  #         class: mermaid
+  #         format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
 
 nav:
   - Home: index.md
