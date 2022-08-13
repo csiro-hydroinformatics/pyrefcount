@@ -21,7 +21,7 @@ class CffiNativeHandle(NativeHandle):
 
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
-        _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        _type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
     """
 
@@ -46,7 +46,7 @@ class CffiNativeHandle(NativeHandle):
 
         Args:
             handle (object): The handle (e.g. cffi pointer) to the native resource.
-            type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+            type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
             prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
         super(CffiNativeHandle, self).__init__(handle, prior_ref_count)
@@ -186,7 +186,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
 
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
-        _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        _type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
         _release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object _handle.
     """
@@ -234,7 +234,7 @@ class OwningCffiNativeHandle(CffiNativeHandle):
 
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
-        _type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        _type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
     """
 
@@ -278,7 +278,7 @@ def wrap_cffi_native_handle(
     Args:
         obj (Union[CffiData,Any]): An object, which will be wrapped if this is a CFFI pointer, i.e. an instance of `CffiData`
         release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
-        type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+        type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
     """
     if isinstance(obj, FFI.CData):
         return DeletableCffiNativeHandle(
@@ -293,7 +293,7 @@ def is_cffi_native_handle(x: Any, type_id: str = "") -> bool:
 
     Args:
         x (object): object to test, presumed to be an instance of `CffiNativeHandle`
-        type_id (str or None): Optional identifier for the type of underlying resource being wrapped.
+        type_id (Optional[str]): Optional identifier for the type of underlying resource being wrapped.
     """
     if x is None:
         return False
@@ -341,9 +341,9 @@ def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str) -> str:
 
     Args:
         x (object): object passed as an argument to a function but with an unexpected type or type id.
-        expected_type_id (str or None): Expected identifier for the type of underlying resource being wrapped.
+        expected_type_id (Optional[str]): Expected identifier for the type of underlying resource being wrapped.
 
-    Returns: (str): the error message
+    Returns (str): the error message
     """
     if x is None:
         return "Expected a 'CffiNativeHandle' but instead got 'None'"
@@ -445,7 +445,7 @@ class CffiWrapperFactory:
 
         Args:
             obj (Union[CffiData,Any]): An object, which will be wrapped if this is a CFFI pointer, i.e. an instance of `CffiData`
-            type_id (str or None): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
+            type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
             release_native (Callable[[CffiData],None]): function to call on deleting this wrapper. The function should have one argument accepting the object handle.
 
         Raises:
