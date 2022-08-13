@@ -35,7 +35,7 @@ theme:
     # - navigation.instant
     # - navigation.prune
     - navigation.sections
-    # - navigation.tabs
+    - navigation.tabs
     # - navigation.tabs.sticky
     - navigation.top
     - navigation.tracking
@@ -99,7 +99,12 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Usage and Application: usage-and-applications.md
-  - Code Documentation: code-reference.md
+  - Applications: usage-and-applications.md
+  - API Doc:
+    - Submodule interop: interop-module.md
+    - Submodule putils: putils-module.md
+    - Submodule base: base-module.md
   - Appendix:
-      - Tech Notes: tech_notes.md
+    - Developer Notes: tech_notes.md
+    # - Sandpit: sandpit.md
+
