@@ -23,9 +23,21 @@ theme:
   # name: "readthedocs"
   name: "material"
   palette:
-    scheme: slate
-
-  # Default values, taken from mkdocs_theme.yml
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode  # Default values, taken from mkdocs_theme.yml
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
   language: en
   features:
     - content.code.annotate
@@ -55,6 +67,9 @@ plugins:
         python:
           options:
             docstring_style: google
+  # minify seems advanced. https://squidfunk.github.io/mkdocs-material/customization/#theme-development  
+  # - minify:
+  #   minify_html: true
 
 
 
@@ -81,11 +96,11 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.keys
-  #- pymdownx.magiclink:
+  # - pymdownx.keys
+  # - pymdownx.magiclink:
   #    repo_url_shorthand: true
-  #    user: jmp75
-  #    repo: mkdocs-material
+  #    user: csiro-hydroinformatics
+  #    repo: pyrefcount
   - pymdownx.mark
   - pymdownx.smartsymbols
   # - pymdownx.superfences:
