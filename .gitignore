@@ -37,3 +37,5 @@ dist/
 refcount.egg-info/
 .pytest_cache/
 
+.ipynb_checkpoints/
+.coverage
