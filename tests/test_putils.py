@@ -9,6 +9,8 @@ if sys.platform == "win32":
     dir_path = os.path.join(pkg_dir, "tests/test_native_library/x64/Debug")
 elif sys.platform == "linux":
     dir_path = os.path.join(pkg_dir, "tests/test_native_library/build")
+elif sys.platform == "darwin":
+    dir_path = os.path.join(pkg_dir, "tests/test_native_library/build")
 else:
     raise RuntimeError(f"Platform {sys.platform} is not yet supported")
 
@@ -19,6 +21,8 @@ def test_library_short_filename() -> None:
         assert fname == "test_native_library.dll"
     elif sys.platform == "linux":
         assert fname == "libtest_native_library.so"
+    elif sys.platform == "darwin":
+        assert fname == "libtest_native_library.dylib"
     else:
         raise RuntimeError(f"Platform {sys.platform} is not yet supported")
 
@@ -32,6 +36,10 @@ def test_find_full_path():
         assert find_full_path('kernel32').endswith('kernel32.dll')
     elif sys.platform == "linux":
         assert find_full_path('c') == 'libc.so.6'
+        assert find_full_path('abcdefabcdefabcdef') is None
+    elif sys.platform == "darwin":
+        # /usr/lib/libSystem.dylib ?
+        assert find_full_path('System') == 'libSystem.dylib'
         assert find_full_path('abcdefabcdefabcdef') is None
     else:
         raise RuntimeError(f"Platform {sys.platform} is not yet supported")
