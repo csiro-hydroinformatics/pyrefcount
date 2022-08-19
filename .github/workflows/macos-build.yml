@@ -41,7 +41,6 @@ jobs:
         cmake --build build -- -j3
     - name: Test with pytest
       run: |
-        cd bindings/python/cinterop
         pytest tests/ --cov=cinterop --cov-report=xml
 
     # - name: Mypy type check

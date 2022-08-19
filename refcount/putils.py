@@ -30,8 +30,12 @@ def library_short_filename(library_name: str) -> str:
     else:
         if sys.platform == "win32":
             return "{}.dll".format(library_name)
-        else:
+        elif sys.platform == "linux":
             return "lib{}.so".format(library_name)
+        elif sys.platform == "darwin":
+            return "lib{}.dylib".format(library_name)
+        else:
+            raise NotImplementedError(f"Platform '{sys.platform}' is not (yet) supported")
 
 def find_full_path(name: str) -> Union[str, None]:
     """Find the full path of a library in under the python 
