@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.1 (2022-08-19)
+
+Minor changes that may not have been required to build the [conda package](https://github.com/conda-forge/refcount-feedstock/pull/2)
+
 ## v1.1.0 (2022-08-19)
 
 ### Main changes
