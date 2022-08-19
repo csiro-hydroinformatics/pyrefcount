@@ -47,7 +47,7 @@ jobs:
         pwd
         dir
         cmake -Bbuild .
-        cmake --build build -- -j3
+        cmake --build build--
     - name: Test with pytest
       run: |
         poetry run pytest tests/ --cov=refcount --cov-report=xml

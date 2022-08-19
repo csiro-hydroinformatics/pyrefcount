@@ -8,7 +8,7 @@ on Linux:
 cd tests
 cd test_native_library
 cmake -Bbuild .
-cmake --build build -- -j3
+cmake --build build--
 ```
 
 ```sh
