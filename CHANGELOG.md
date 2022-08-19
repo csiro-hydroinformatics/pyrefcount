@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.0 (2022-08-19)
+
+### Main changes
+
+* Expand some features to cater for macos
+* Tidy up and reengineer some of the legacy functions in the platform utilities `putils` to facilitate library loading. Minor breaking changes, but probably for no-one but the author in effect.
+
 ## v1.0.0 (2022-08-13)
 
 ### Main changes
