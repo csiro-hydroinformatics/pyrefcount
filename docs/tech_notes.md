@@ -70,17 +70,22 @@ mkdocs new .
 `mamba install -c conda-forge mkdocs-material mkdocstrings`
 `mamba install -c conda-forge mkdocs-material-extensions`
 
+Building the doc:
+
+```sh
+. ~/config/baseconda
+conda activate poetry
+mkdocs build --clean --site-dir _build/html --config-file mkdocs.yml
+mkdocs serve
+```
+
 ## testing
 
 ```sh
 # pytest tests/ --cov=refcounts # generates a warning about no coverage data cvollected
-
 coverage run -m pytest
-
 # pytest --cov=refcounts --cov-report html
-
 coverage report
-
 coverage html -d coverage_html
 ```
 

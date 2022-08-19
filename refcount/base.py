@@ -71,7 +71,7 @@ class NativeHandle(ReferenceCounter):
             handle (object): The handle (e.g. cffi pointer) to the native resource.
             prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
 
-        Exceptions:
+        Raises:
             error message when a handle is not a valid object.
         """
         if not self._is_valid_handle(handle):

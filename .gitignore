@@ -30,7 +30,17 @@ src/obj/
 *.user
 *.code-workspace
 .vscode/
-build/
+
+
+
+# python packages
+*.so
+MANIFEST
+*.py[cod]
+*.egg-info
+.DS_Store
+_generate
+build
 _build/
 out/
 dist/

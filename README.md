@@ -139,7 +139,7 @@ This python package `refcount` actually spawned from prior work for interoperabi
 In you have native interop needs you may also want to look at:
 
 * the nuget package [dynamic-interop-dll](https://github.com/rdotnet/dynamic-interop-dll) for .NET/native interop.
-* a set of mostly c++ software [tools for interop with C/C++](https://github.com/csiro-hydroinformatics/rcpp-interop-commons)
+* a set of mostly c++ software [tools for interop with C/C++](https://github.com/csiro-hydroinformatics/c-interop)
 * a C# library for [generating interop glue code on top of C API glue code](https://github.com/csiro-hydroinformatics/c-api-wrapper-generation).
 
 ### Other python packages
