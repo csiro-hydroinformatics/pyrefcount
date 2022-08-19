@@ -39,7 +39,7 @@ def test_find_full_path():
         assert find_full_path('abcdefabcdefabcdef') is None
     elif sys.platform == "darwin":
         # /usr/lib/libSystem.dylib ?
-        assert find_full_path('System') == 'libSystem.dylib'
+        assert find_full_path('System').endswith('libSystem.dylib')
         assert find_full_path('abcdefabcdefabcdef') is None
     else:
         raise RuntimeError(f"Platform {sys.platform} is not yet supported")
