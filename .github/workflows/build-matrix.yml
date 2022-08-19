@@ -5,7 +5,7 @@ name: matrix-build
 
 on:
   push:
-    branches: [ "experimental" ]
+    branches: [ "experimental", "testing", "master" ]
   #pull_request:
   #  branches: [ "testing" ]
 
@@ -13,8 +13,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest]
-        # os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         # python-version: ["3.7", "3.8", "3.9", "3.10", pypy-2.7, pypy-3.8]
         python-version: ["3.9", "3.10"]
         exclude:
