@@ -47,7 +47,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 #     REQUIREMENTS = f.read().splitlines()
 
 
-REQUIREMENTS = ['cffi']
+REQUIREMENTS = ['cffi', 'typing-extensions']
 
 TEST_REQUIREMENTS = ['pytest',
                     #  'coveralls',
