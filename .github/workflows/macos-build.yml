@@ -1,0 +1,53 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: macos build
+
+on:
+  push:
+    branches: [ "experimental" ]
+  #pull_request:
+  #  branches: [ "testing" ]
+
+jobs:
+  mac_os_build:
+
+    runs-on: macos-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.9"]  # , "3.10"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Python dependencies
+      run: |
+        pip install poetry cffi pytest
+        poetry install
+    #- name: Lint with flake8
+    #  run: |
+    #    # stop the build if there are Python syntax errors or undefined names
+    #    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    #    # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+    #    flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Compile native code for the unit tests
+      run: |
+        cd tests/test_native_library
+        cmake -H. -Bbuild
+        cmake --build build -- -j3
+    - name: Test with pytest
+      run: |
+        cd bindings/python/cinterop
+        pytest tests/ --cov=cinterop --cov-report=xml
+
+    # - name: Mypy type check
+    #   run: poetry run mypy .
+
+    # - name: Use Codecov to track coverage
+    #   uses: codecov/codecov-action@v3
+    #   with:
+    #     files: coverage.xml   # coverage report
