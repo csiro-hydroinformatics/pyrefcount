@@ -44,6 +44,8 @@ jobs:
     - name: Compile native code for the unit tests
       run: |
         cd tests/test_native_library
+        pwd
+        dir
         cmake -H. -Bbuild
         cmake --build build -- -j3
     - name: Test with pytest
