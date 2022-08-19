@@ -41,7 +41,7 @@ jobs:
         cmake --build build -- -j3
     - name: Test with pytest
       run: |
-        pytest tests/ --cov=cinterop --cov-report=xml
+        pytest tests/
 
     # - name: Mypy type check
     #   run: poetry run mypy .
