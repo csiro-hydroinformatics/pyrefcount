@@ -41,7 +41,8 @@ jobs:
         cmake --build build -- -j3
     - name: Test with pytest
       run: |
-        pytest tests/
+        poetry run python -c "import typing_extensions"
+        poetry run pytest tests/
 
     # - name: Mypy type check
     #   run: poetry run mypy .
