@@ -1,7 +1,7 @@
 # building for unit tests
 
 ```sh
-cmake -H. -Bbuild
+cmake -Bbuild .
 cmake --build build -- -j3
 ```
 
