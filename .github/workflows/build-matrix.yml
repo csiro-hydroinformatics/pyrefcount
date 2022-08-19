@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: macos build
+name: matrix-build
 
 on:
   push:
@@ -10,14 +10,20 @@ on:
   #  branches: [ "testing" ]
 
 jobs:
-  mac_os_build:
-
-    runs-on: macos-latest
+  build:
     strategy:
-      fail-fast: true
       matrix:
-        python-version: ["3.9"]  # , "3.10"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        # python-version: ["3.7", "3.8", "3.9", "3.10", pypy-2.7, pypy-3.8]
+        python-version: ["3.9", "3.10"]
+        exclude:
+          - os: macos-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.10"
+      fail-fast: true
 
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -41,12 +47,12 @@ jobs:
         cmake --build build -- -j3
     - name: Test with pytest
       run: |
-        poetry run pytest tests/
-
+        poetry run pytest tests/ --cov=refcount --cov-report=xml
     # - name: Mypy type check
     #   run: poetry run mypy .
 
-    # - name: Use Codecov to track coverage
-    #   uses: codecov/codecov-action@v3
-    #   with:
-    #     files: coverage.xml   # coverage report
+    - name: Use Codecov to track coverage
+      if: matrix.os == 'linux' && matrix.python-version == '3.9'
+      uses: codecov/codecov-action@v3
+      with:
+        files: coverage.xml   # coverage report
