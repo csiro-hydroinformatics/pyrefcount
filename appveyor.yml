@@ -43,7 +43,7 @@ build_script:
 test_script:
   # - "%PYTHON%/python run_tests.py"
   - poetry run pytest tests/ --cov=refcount --cov-report=xml
-  - poetry run mypy .
+  # - poetry run mypy .
 
 after_test:
   - ps: |
