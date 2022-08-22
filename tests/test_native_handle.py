@@ -13,6 +13,10 @@ pkg_dir = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, pkg_dir)
 if sys.platform == "win32":
     dir_path = os.path.join(pkg_dir, "tests", "test_native_library", "build", "Debug")
+    if not os.path.exists(os.path.join(dir_path, fname)):
+        # fallback on AppVeyor output location
+        dir_path = os.path.join(pkg_dir, "tests", "test_native_library", "x64", "Debug")
+
 else:
     dir_path = os.path.join(pkg_dir, "tests", "test_native_library", "build")
 
