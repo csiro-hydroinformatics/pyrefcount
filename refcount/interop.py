@@ -19,29 +19,51 @@ FFI.CData is a type, but it seems it cannot be used in type hinting.
 class CffiNativeHandle(NativeHandle):
     """Reference counting wrapper class for CFFI pointers
 
+    This class is originally inspired from a class with a similar purpose in C#. See https://github.com/rdotnet/dynamic-interop-dll
+
+    Say you have a C API as follows:
+
+    * `void* create_some_object();`
+    * `dispose_of_some_object(void* obj);`
+
+    and accessing it using Python and [CFFI](https://cffi.readthedocs.io).
+    Users would use the `calllib` function:
+
+    ```python
+    from cffi import FFI
+    ffi = FFI()
+
+    # cdef() expects a single string declaring the C types, functions and
+    # globals needed to use the shared object. It must be in valid C syntax.
+    ffi.cdef('''
+        void* create_some_object();
+        dispose_of_some_object(void* obj);
+    ''')
+    mydll_so = ffi.dlopen('/path/to/mydll.so')
+    cffi_void_ptr = mydll_so.create_some_object()
+    ```
+
+    at some point when done you need to dispose of it to clear native memory:
+
+    ```python
+    mydll_so.dispose_of_some_object(cffi_void_ptr)
+    ```
+
+    In practice in real systems one quickly ends up with cases
+    where it is unclear when to dispose of the object.
+    If you call the `dispose_of_some_object` function more
+    than once, or too soon, you quickly crash the program, or possibly worse outcomes with numeric non-sense.
+    `CffiNativeHandle` is designed to alleviate this headache by
+    using native reference counting of `handle` classes to reliably dispose of objects.
+
     Attributes:
         _handle (object): The handle (e.g. cffi pointer) to the native resource.
         _type_id (Optional[str]): An optional identifier for the type of underlying resource. This can be used to usefully maintain type information about the pointer/handle across an otherwise opaque C API. See package documentation.
         _finalizing (bool): a flag telling whether this object is in its deletion phase. This has a use in some advanced cases with reverse callback, possibly not relevant in Python.
     """
 
-    # Say you have a C API as follows:
-    # * `void* create_some_object();`
-    # * `dispose_of_some_object(void* obj);`
-    # and accessing it using Python and CFFI. Users would use the `calllib` function:
-    # aLibPointer = callib('mylib', 'create_some_object');
-    # but at some point when done need to dispose of it:
-    # callib('mylib', 'dispose_of_some_object', aLibPointer);
-    # In practice in real systems one quickly ends up with cases
-    # where it is unclear when to dispose of the object.
-    # If you call the `dispose_of_some_object` function more
-    # than once of too soon, you could easily crash the program.
-    # CffiNativeHandle is designed to alleviate this headache by
-    # using Matlab native reference counting of `handle` classes to reliably dispose of objects.
 
-    # This class is originally inspired from a class with a similar purpose in C#. See https://github.com/rdotnet/dynamic-interop-dll
-
-    def __init__(self, handle: "CffiData", type_id: str = None, prior_ref_count: int = 0):
+    def __init__(self, handle: "CffiData", type_id: Optional[str] = None, prior_ref_count: int = 0):
         """Initialize a reference counter for a resource handle, with an initial reference count.
 
         Args:
@@ -195,7 +217,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
         self,
         handle: "CffiData",
         release_native: Optional[Callable[["CffiData"], None]],
-        type_id: str = None,
+        type_id: Optional[str] = None,
         prior_ref_count: int = 0,
     ):
         """New reference counter for a CFFI resource handle.
@@ -381,7 +403,7 @@ class GenericWrapper:
 
 def wrap_as_pointer_handle(
     obj_wrapper: Any, stringent: bool = False
-) -> Union[CffiNativeHandle, OwningCffiNativeHandle, GenericWrapper, None]:
+) -> Union[CffiNativeHandle, OwningCffiNativeHandle, GenericWrapper]:
     """Wrap an object, if need be, so that its C API pointer appears accessible via a 'ptr' property
 
     Args:
@@ -397,7 +419,7 @@ def wrap_as_pointer_handle(
     # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters.
     # Reassess approach, even if other C API function will still catch the issue of null ptrs.
     if obj_wrapper is None:
-        return None
+        return GenericWrapper(None)
         # return GenericWrapper(FFI.NULL)  # Ended with kernel crashes and API call return, but unclear why
     elif isinstance(obj_wrapper, CffiNativeHandle):
         return obj_wrapper

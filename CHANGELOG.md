@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.2.0 (2023-01-25)
+
+`wrap_as_pointer_handle` wraps `None` via a `GenericWrapper`, to facilitate code generation on top of a C API allowing `nullptr` to be passed in.
+
 ## v1.1.1 (2022-08-19)
 
 Minor changes that may not have been required to build the [conda package](https://github.com/conda-forge/refcount-feedstock/pull/2)

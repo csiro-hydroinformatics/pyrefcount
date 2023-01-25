@@ -4,6 +4,55 @@
 
 Note to self: as of Jan 2019 also using github_jm\didactique\doc\know_how.md to log the exploratory and release processes around `refcount`
 
+## Poetry
+
+2022-12
+
+Having to update dependent package versions [GitPython vulnerable to Remote Code Execution due to improper user input validation](https://github.com/csiro-hydroinformatics/pyrefcount/security/dependabot/4). It is probably not a burning issue given this should be only a dev-time dependency and certainly not runtime (otherwise poetry is crap)
+
+```sh
+cd ~/src/pyrefcount
+poetry --version # in a conda env for poetry...
+```
+
+`ModuleNotFoundError: No module named 'importlib_metadata'`. Right...
+
+```sh
+cd ~/bin
+curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj micromamba
+micromamba shell init -s bash -p ~/micromamba
+```
+
+```sh
+source ~/.bashrc
+alias mm=micromamba
+mm create -n poetry python=3.9
+mm activate poetry
+mm list
+```
+
+`pip install poetry`
+
+```
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+plantuml-markdown 3.6.3 requires Markdown, which is not installed.
+```
+
+Huh??
+
+`pip install Markdown` seems to fix it. Odd.
+
+poetry --version returns 1.3.1 which seems to be what is available from conda-forge anyway. So:
+
+```
+mm deactivate
+mm env remove -n poetry
+
+mm create -n poetry python=3.9 poetry=1.3.1
+mm activate poetry
+mm list
+```
+
 ## Release steps
 
 * all UT pass
