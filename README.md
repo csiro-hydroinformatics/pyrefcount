@@ -1,7 +1,8 @@
 # refcount - Python classes for reference counting
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-stable-green.svg) [![Documentation Status](https://readthedocs.org/projects/pyrefcount/badge/?version=latest)](https://pyrefcount.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount/branch/master/graph/badge.svg?token=ZBBFq3ncAq)](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount) master: [![Python package](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml/badge.svg?branch=master)](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml) testing: [![Python package](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml/badge.svg?branch=testing)](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-stable-green.svg) [![Documentation Status](https://readthedocs.org/projects/pyrefcount/badge/?version=latest)](https://pyrefcount.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount/branch/master/graph/badge.svg?token=ZBBFq3ncAq)](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount)[![Python package](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml/badge.svg?branch=master)](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml)
 
+[![pypi version](https://img.shields.io/pypi/v/refcount)](https://pypi.org/project/refcount/)[![Conda Version](https://img.shields.io/conda/vn/conda-forge/refcount.svg)](https://anaconda.org/conda-forge/refcount)[![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/refcount?label=conda-downloads)](https://anaconda.org/conda-forge/refcount)
 
 ![Reference counted native handles](./docs/img/refcount-principles.png "Reference counted native handles")
 
@@ -148,3 +149,7 @@ In you have native interop needs you may also want to look at:
 `refcount` was created in part because no existing prior (Python) work could quite fit the need. There are however packages that may better address your particular need:
 
 * [infi.pyutils](https://pypi.org/project/infi.pyutils/) contains a reference counting class.
+
+## Development branch
+
+[![Python package](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml/badge.svg?branch=testing)](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml)
