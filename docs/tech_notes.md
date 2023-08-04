@@ -34,10 +34,9 @@ poetry version 1.2.1
 pytest tests/
 ```
 
-poetry config repositories.test-pypi https://test.pypi.org/legacy/
-
+```sh
 poetry config repositories.test-pypi https://upload.pypi.org/legacy/
-
+```
 
 ## Code - deprecated
 
@@ -130,4 +129,3 @@ Can view with the `retext` program (did not find VScode RST extensions working, 
 ```sh
 python setup.py check --restructuredtext
 ```
-
