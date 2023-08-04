@@ -38,7 +38,6 @@ poetry config repositories.test-pypi https://test.pypi.org/legacy/
 
 poetry config repositories.test-pypi https://upload.pypi.org/legacy/
 
-
 ## Code - deprecated
 
 ```sh
