@@ -4,6 +4,21 @@
 
 Note to self: as of Jan 2019 also using github_jm\didactique\doc\know_how.md to log the exploratory and release processes around `refcount`
 
+## Poetry
+
+2023-04
+
+```sh
+cd ~/src/pyrefcount
+```
+
+[https://py-pkgs.org](https://py-pkgs.org)
+
+```sh
+mamba env list
+mamba create -n poetry python=3.9 poetry
+```
+
 ## Release steps
 
 * all UT pass
@@ -11,7 +26,20 @@ Note to self: as of Jan 2019 also using github_jm\didactique\doc\know_how.md to 
 * version.py updated
 * check readme is up to date
 
-## Code
+```sh
+mamba activate poetry
+poetry install
+poetry version
+poetry version 1.2.1
+pytest tests/
+```
+
+poetry config repositories.test-pypi https://test.pypi.org/legacy/
+
+poetry config repositories.test-pypi https://upload.pypi.org/legacy/
+
+
+## Code - deprecated
 
 ```sh
 cd ~/src/github_jm/pyrefcount

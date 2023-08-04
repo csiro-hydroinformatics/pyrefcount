@@ -264,8 +264,13 @@ def test_wrapper_helper_functions():
 def test_wrap_as_pointer_handle():
     pointer = ut_dll.create_dog()
     dog = wrap_cffi_native_handle(pointer, "dog", ut_dll.release)
-    assert wrap_as_pointer_handle(None, False) is None
-    assert wrap_as_pointer_handle(None, True) is None
+    
+    # Allow passing None via a wrapper, to facilitate uniform code generation with c-api-wrapper-generation
+    assert isinstance(wrap_as_pointer_handle(None, False), GenericWrapper)
+    assert isinstance(wrap_as_pointer_handle(None, True), GenericWrapper)
+    assert wrap_as_pointer_handle(None, True).ptr is None
+    assert wrap_as_pointer_handle(None, False).ptr is None
+
     x = ut_ffi.new("char[10]", init="foobarbaz0".encode('utf-8'))
     assert isinstance(wrap_as_pointer_handle(x, False), OwningCffiNativeHandle)
     assert isinstance(wrap_as_pointer_handle(x, True), OwningCffiNativeHandle)
