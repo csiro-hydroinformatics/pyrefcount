@@ -76,7 +76,7 @@ setup(
     long_description_content_type=long_description_content_type,
     url='https://github.com/csiro-hydroinformatics/pyrefcount',
     author='Jean-Michel Perraud',
-    author_email='per202@csiro.au',
+    author_email='jean-michel.perraud@csiro.au',
     classifiers=CLASSIFIERS,
     keywords='interop python native-libraries reference-counting handle cffi',
     packages=['refcount'],
