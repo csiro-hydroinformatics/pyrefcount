@@ -30,7 +30,6 @@ mamba create -n poetry python=3.9 poetry
 mamba activate poetry
 poetry install
 poetry version
-poetry version 1.2.1
 pytest tests/
 ```
 
