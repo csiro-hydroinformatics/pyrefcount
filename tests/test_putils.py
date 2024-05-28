@@ -95,5 +95,13 @@ def test_build_new_path_env():
             expected = str(tmp / "path")
         assert s.endswith(expected)
 
+def test_new_path_env_warning_msg():
+    # unit test for issue #16
+    path = os.environ.get('PATH', None)
+    assert path is not None
+    new_path = build_new_path_env(from_env='UNLIKELY_TEST_PATH_ENV', to_env='PATH', platform=sys.platform)
+    assert new_path == path
+
 if __name__ == "__main__":
     test_build_new_path_env()
+    test_new_path_env_warning_msg()

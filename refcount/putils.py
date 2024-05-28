@@ -221,8 +221,12 @@ def build_new_path_env (from_env:str='LIBRARY_PATH', to_env:str='PATH', platform
         shared_lib_paths_vec = shared_lib_paths.split(path_sep)
         return augment_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
     else:
-        print("WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because '{2}' is not found, this is a likely cause.".format(from_env, to_env, lib_short_fname))
-        return ""
+        print("WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because a native library is not found, this is a likely cause.".format(from_env, to_env))
+        prior_path_env = os.environ.get(to_env)
+        if prior_path_env is not None:
+            return prior_path_env
+        else:
+            return ""
 
 def update_path_windows (from_env:str='LIBRARY_PATH', to_env:str='PATH') -> None:
     """If called on Windows, append an environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
