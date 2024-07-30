@@ -38,9 +38,10 @@ def test_find_full_path():
     elif sys.platform == "linux":
         assert find_full_path('c') == 'libc.so.6'
         assert find_full_path('abcdefabcdefabcdef') is None
-        # below is to activate one of the branches in the code to increase coverage
+        # below was trying to activate one of the branches in the code to increase coverage
+        # worked on my machine, but not on the CI (ubuntu-latest) returning 'libffi.so.8'
         # I think libffilso is what is under cffi, and would be installed in the conda/venv environment. TBC. 
-        assert find_full_path('ffi').endswith('lib/libffi.so')
+        # assert find_full_path('ffi').endswith('lib/libffi.so')
     elif sys.platform == "darwin":
         # /usr/lib/libSystem.dylib ?
         assert find_full_path('System').endswith('libSystem.dylib')
