@@ -34,9 +34,14 @@ poetry version 1.2.1
 pytest tests/
 ```
 
+Not sure about using poetry for repos push.
+
 ```sh
 poetry config repositories.test-pypi https://upload.pypi.org/legacy/
 ```
+
+with .pypirc configured:
+twine upload -r testpypi dist/*
 
 ## Code - deprecated
 
