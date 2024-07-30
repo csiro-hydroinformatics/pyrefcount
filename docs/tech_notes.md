@@ -39,8 +39,18 @@ Not sure about using poetry for repos push.
 poetry config repositories.test-pypi https://upload.pypi.org/legacy/
 ```
 
-with .pypirc configured:
+with `.pypirc` configured:
+
+```sh
+rm dist/*
+poetry build
+ls dist/
+
 twine upload -r testpypi dist/*
+# check
+twine upload -r pypi dist/*
+
+```
 
 ## Code - deprecated
 
