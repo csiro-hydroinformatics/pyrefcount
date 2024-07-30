@@ -437,7 +437,11 @@ def wrap_as_pointer_handle(
 
 
 def type_error_cffi(x:Union[CffiNativeHandle, Any], expected_type:str) -> str:
-    """DEPRECATED Build an error message for situations where a cffi pointer handler is not that, or not of the expected type
+    """DEPRECATED 
+    
+    This function is deprecated; may still be in use in 'uchronia'. Use `cffi_arg_error_external_obj_type` instead.
+
+    Build an error message for situations where a cffi pointer handler is not that, or not of the expected type
 
     Args:
         x (Union[CffiNativeHandle, Any]): actual object that is not of the expected type or underlying type for the external pointer.
@@ -505,9 +509,15 @@ class CffiWrapperFactory:
             elif n == 1:
                 return wrapper_type(obj)
             elif n == 2:
+                if release_native is None:
+                    raise ValueError(f"Wrapper class '{wrapper_type.__name__}' has two constructor arguments; the argument 'release_native' cannot be None")
                 return wrapper_type(obj, release_native)
-            else:
+            elif n == 3:
+                if release_native is None:
+                    raise ValueError(f"Wrapper class '{type(wrapper_type)}' has three constructor arguments; the argument 'release_native' cannot be None")
                 return wrapper_type(obj, release_native, type_id)
+            else:
+                raise NotImplementedError("Wrapper constructors with more than 3 arguments are not yet supported")
 
 
 WrapperCreationFunction = Callable[[Any, str, Callable], DeletableCffiNativeHandle]

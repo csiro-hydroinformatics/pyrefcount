@@ -1,6 +1,7 @@
 import os
 import sys
 import gc
+from typing import Any, Callable
 import pytest
 from cffi import FFI
 from refcount.interop import CffiNativeHandle, CffiWrapperFactory, DeletableCffiNativeHandle, GenericWrapper, OwningCffiNativeHandle, cffi_arg_error_external_obj_type, is_cffi_native_handle, unwrap_cffi_native_handle, wrap_as_pointer_handle, wrap_cffi_native_handle
@@ -57,6 +58,10 @@ ut_ffi.cdef("extern void* create_dog();")
 ut_ffi.cdef("extern int get_dog_refcount( void* obj);")
 ut_ffi.cdef("extern int remove_dog_reference( void* obj);")
 ut_ffi.cdef("extern int add_dog_reference( void* obj);")
+ut_ffi.cdef("extern void* create_croc();")
+ut_ffi.cdef("extern int get_croc_refcount( void* obj);")
+ut_ffi.cdef("extern int remove_croc_reference( void* obj);")
+ut_ffi.cdef("extern int add_croc_reference( void* obj);")
 ut_ffi.cdef("extern void* create_owner( void* d);")
 ut_ffi.cdef("extern int get_owner_refcount( void* obj);")
 ut_ffi.cdef("extern int remove_owner_reference( void* obj);")
@@ -117,6 +122,43 @@ class DogOwner(CustomCffiNativeHandle):
         # super(DogOwner, self)._release_handle()
         self.dog.release()
         return True
+
+
+class CrocFourParameters(CffiNativeHandle):
+    def __init__(self, pointer:Any, release_native:Callable, type_id:str="", prior_ref_count:int=0):
+        super(CrocFourParameters, self).__init__(
+            pointer, type_id=type_id, prior_ref_count=prior_ref_count
+        )
+        self._release_native_handle = release_native
+
+    def _release_handle(self) -> bool:
+        self._release_native_handle(self.get_handle())
+        return True
+
+class CrocThreeParameters(CrocFourParameters):
+    def __init__(self, pointer:Any, release_native:Callable, type_id:str=""):
+        super(CrocThreeParameters, self).__init__(
+            pointer, release_native=release_native, type_id=type_id, prior_ref_count=0
+        )
+
+class CrocTwoParameters(CrocThreeParameters):
+    def __init__(self, pointer:Any, release_native:Callable):
+        super(CrocTwoParameters, self).__init__(
+            pointer, release_native=release_native, type_id="CROC_PTR"
+        )
+
+class CrocOneParameters(CrocTwoParameters):
+    def __init__(self, pointer:Any):
+        super(CrocOneParameters, self).__init__(
+            pointer, release_native=ut_dll.release
+        )
+
+class CrocZeroParameters(CrocOneParameters):
+    def __init__(self):
+        raise ValueError("This class should not have been used to create a wrapper, since it has no constuctor argument.")
+        super(CrocZeroParameters, self).__init__(
+            None
+        )
 
 
 def test_native_obj_ref_counting():
@@ -243,21 +285,24 @@ def test_wrapper_helper_functions():
     assert unwrap_cffi_native_handle(x, False) == x
     with pytest.raises(TypeError):
         assert unwrap_cffi_native_handle(x, True) == x
-    msg = cffi_arg_error_external_obj_type(1, "")
-    assert (
-        "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'"
-        == msg
-    )
-    msg = cffi_arg_error_external_obj_type(dog, "cat")
-    assert (
-        "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'"
-        == msg
-    )
-    msg = cffi_arg_error_external_obj_type(None, "cat")
-    assert (
-        "Expected a 'CffiNativeHandle' but instead got 'None'"
-        == msg
-    )
+
+    from refcount.interop import type_error_cffi # backward compat; maintain unit test coverage
+    for func in [cffi_arg_error_external_obj_type, type_error_cffi]:
+        msg = func(1, "")
+        assert (
+            "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'"
+            == msg
+        )
+        msg = func(dog, "cat")
+        assert (
+            "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'"
+            == msg
+        )
+        msg = func(None, "cat")
+        assert (
+            "Expected a 'CffiNativeHandle' but instead got 'None'"
+            == msg
+        )
     dog = None
     gc.collect()
 
@@ -285,6 +330,9 @@ def test_wrap_as_pointer_handle():
     assert wrap_as_pointer_handle(d, False) == d
     with pytest.raises(TypeError):
         assert unwrap_cffi_native_handle(d, True) == d
+
+    with pytest.raises(TypeError, match="Argument is neither a CffiNativeHandle nor a CFFI external pointer, nor bytes"):
+        nothing = wrap_as_pointer_handle(d, True)
 
     dog = None
     gc.collect()
@@ -317,6 +365,99 @@ def test_cffi_wrapper_factory():
     del(dog)
     gc.collect()
 
+    # Test the unexpected cases, where we have a pointer but no 
+    # identified native type, and a strict requirement to have one.
+    pointer_croc = ut_dll.create_croc()
+    with pytest.raises(ValueError):
+        wf_strict.create_wrapper(pointer_croc, "CROC_PTR", ut_dll.release)
+    # To increase UT coverage mostly, we will test the case where we have a pointer but no identified python wrapper type.
+    _api_type_wrapper.update({"CROC_PTR": None})
+    with pytest.raises(NotImplementedError):
+        wf_strict.create_wrapper(pointer_croc, "CROC_PTR", ut_dll.release)
+    # Test the case where we have a pointer but no identified python wrapper type, but we are not strict ad use a generic wrapper.
+    anonymous_croc = wf_not_strict.create_wrapper(pointer_croc, "CROC_PTR", ut_dll.release)
+    assert isinstance(anonymous_croc, DeletableCffiNativeHandle)
+    del(anonymous_croc)
+    gc.collect()
+
+def test_cffi_wrapper_factory_various_ctors():
+    """Sweep the various supported wrapper constructors for the wrapper factory"""
+
+    _api_type_wrapper = {
+        "DOG_PTR": Dog,
+        "DOG_OWNER_PTR": DogOwner,
+        "CROC_PTR": None
+    }
+    wf_strict = CffiWrapperFactory(_api_type_wrapper, True)
+    # we cannot create a wrapper for a type that has no constructor: how would it know the native pointer?
+    _api_type_wrapper.update({"CROC_PTR": CrocZeroParameters})
+    pointer_croc = ut_dll.create_croc()
+    with pytest.raises(TypeError):
+        wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=None)
+    # we can create a wrapper with a constructor that has one argument, the pointer
+    _api_type_wrapper.update({"CROC_PTR": CrocOneParameters})
+    croc_one = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=None)
+    assert isinstance(croc_one, CrocOneParameters)
+    assert croc_one.type_id == "CROC_PTR"
+    assert croc_one._release_handle is not None
+    del(croc_one)
+    gc.collect()
+
+    # two parameters
+    pointer_croc = ut_dll.create_croc()
+    _api_type_wrapper.update({"CROC_PTR": CrocTwoParameters})
+    # if we have two parameters, we need to provide the release function
+    with pytest.raises(ValueError, match="Wrapper class 'CrocTwoParameters' has two constructor arguments; the argument 'release_native' cannot be None"):
+        _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=None)
+    croc_two = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=ut_dll.release)
+    assert isinstance(croc_two, CrocTwoParameters)
+    assert croc_two.type_id == "CROC_PTR"
+    assert croc_two._release_handle is not None
+    # we cannot test the function equality easily SFAIK
+    # assert croc_two._release_handle == ut_dll.release
+    del(croc_two)
+    gc.collect()
+
+    # three
+    pointer_croc = ut_dll.create_croc()
+    _api_type_wrapper.update({"CROC_PTR": CrocThreeParameters})
+
+    # if we have three parameters, we need to provide the release function
+    with pytest.raises(ValueError):
+        _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=None)
+
+    croc_three = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=ut_dll.release)
+    assert isinstance(croc_three, CrocThreeParameters)
+    assert croc_three.type_id == "CROC_PTR"
+    assert croc_three._release_handle is not None
+    # we cannot test the function equality easily SFAIK
+    # assert croc_three._release_handle == ut_dll.release
+    del(croc_three)
+    gc.collect()
+
+    # four
+    pointer_croc = ut_dll.create_croc()
+    _api_type_wrapper.update({"CROC_PTR": CrocFourParameters})
+    # should be not supported yet, though may be in the future with an inial reference count perhaps making sense
+    # put in place this test though and let it break if we ever do support it.
+    with pytest.raises(NotImplementedError):
+        _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=ut_dll.release)
+    # manual cleanup for the sake of being pedantic
+    ut_dll.release(pointer_croc)
+    gc.collect()
+
+def test_nativehandle_default_check_valid() -> None:
+    # mostly added to increase UT coverage
+    # locks in the behavior of the default implementation
+    from refcount.base import NativeHandle
+    import pytest
+    rc = NativeHandle()
+    pointer = ut_dll.create_dog()
+    dog = wrap_cffi_native_handle(pointer, "dog", ut_dll.release)
+    with pytest.raises(NotImplementedError):
+        rc._is_valid_handle(dog)
+    dog = None
+    gc.collect()
 
 if __name__ == "__main__":
     test_cffi_wrapper_factory()

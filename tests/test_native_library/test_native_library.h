@@ -30,6 +30,7 @@
 #define TEST_INTERVAL_PTR  void*
 #define TEST_DATE_TIME_INFO_PTR  void*
 #define TEST_DOG_PTR  void*
+#define TEST_CROC_PTR  void*
 #define TEST_OWNER_PTR  void*
 #define TEST_COUNTED_PTR  void*
 #else
@@ -37,6 +38,7 @@
 #define TEST_INTERVAL_PTR  interval_interop*
 #define TEST_DATE_TIME_INFO_PTR  date_time_interop*
 #define TEST_DOG_PTR  testnative::dog*
+#define TEST_CROC_PTR  testnative::croc*
 #define TEST_OWNER_PTR  testnative::owner*
 #define TEST_COUNTED_PTR  testnative::reference_counter*
 #endif
@@ -52,6 +54,12 @@ extern "C" {
 	TESTLIB_API int get_dog_refcount(TEST_DOG_PTR obj);
 	TESTLIB_API int remove_dog_reference(TEST_DOG_PTR obj);
 	TESTLIB_API int add_dog_reference(TEST_DOG_PTR obj);
+
+	// To test unhandled cases in the unit tests:
+	TESTLIB_API TEST_CROC_PTR create_croc();
+	TESTLIB_API int get_croc_refcount(TEST_DOG_PTR obj);
+	TESTLIB_API int remove_croc_reference(TEST_DOG_PTR obj);
+	TESTLIB_API int add_croc_reference(TEST_DOG_PTR obj);
 
 	TESTLIB_API TEST_OWNER_PTR create_owner(TEST_DOG_PTR d);
 	TESTLIB_API int get_owner_refcount(TEST_OWNER_PTR obj);

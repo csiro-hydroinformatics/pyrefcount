@@ -46,6 +46,26 @@ int add_reference(reference_counter* obj)
 	return obj->reference_count();
 }
 
+TEST_CROC_PTR create_croc()
+{
+	return new croc();
+}
+
+int get_croc_refcount(TEST_CROC_PTR obj)
+{
+	return get_refcount(obj);
+}
+
+int remove_croc_reference(TEST_CROC_PTR obj)
+{
+	return obj->remove_reference();
+}
+
+int add_croc_reference(TEST_CROC_PTR obj)
+{
+	return add_reference(obj);
+}
+
 TEST_DOG_PTR create_dog()
 {
 	return new dog();

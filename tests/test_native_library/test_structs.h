@@ -61,6 +61,16 @@ namespace testnative
 
 	};
 
+	class croc : public reference_counter
+	{
+	public:
+		croc();
+		~croc();
+
+	private:
+
+	};
+
 	class owner : public reference_counter
 	{
 	public:

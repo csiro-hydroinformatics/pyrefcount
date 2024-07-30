@@ -40,6 +40,14 @@ namespace testnative
 	int dog::num_dogs(0);
 	int owner::num_owners(0);
 
+	croc::croc()
+	{
+	}
+
+	croc::~croc()
+	{
+	}
+
 	owner::owner(dog* d)
 	{
 		num_owners++;
