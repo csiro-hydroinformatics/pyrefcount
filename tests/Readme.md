@@ -5,9 +5,9 @@ If you want to explore the unit tests e.g. in debug mode from your IDE, you can 
 on Linux: 
 
 ```sh
-cd tests
-cd test_native_library
-cmake -Bbuild .
+cd $HOME/src/pyrefcount/tests/test_native_library
+# rm -rf CMakeFiles/ Makefile CMakeCache.txt cmake_install.cmake
+cmake -DCMAKE_BUILD_TYPE=DEBUG -Bbuild .
 cmake --build build
 ```
 

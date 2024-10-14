@@ -9,6 +9,12 @@
 
 #pragma once
 
+#ifdef _WIN32
+  #define STRDUP _strdup
+#else
+  #define STRDUP strdup
+#endif
+
 // Using patterns in https://msdn.microsoft.com/en-us/library/as6wyhwt(v=vs.100).aspx to mark 
 // C interop function as being exported or imported, something necessary with MS cpp tooling.
 #ifdef _WIN32
@@ -71,6 +77,9 @@ extern "C" {
 
 	TESTLIB_API void say_walk(TEST_OWNER_PTR owner);
 	TESTLIB_API void release(TEST_COUNTED_PTR obj);
+
+	TESTLIB_API void register_exception_callback(const void* callback);
+	TESTLIB_API void trigger_callback();
 
 #ifdef __cplusplus
 }

@@ -504,6 +504,8 @@ class CffiWrapperFactory:
         else:
             s = signature(wrapper_type)
             n = len(s.parameters)
+            parameters = [v for k, v in s.parameters.items()]
+            # [<Parameter "handle: Any">, <Parameter "release_native: Callable[[Any], NoneType]">, <Parameter "type_id: Optional[str] = None">, <Parameter "prior_ref_count: int = 0">]
             if n == 0:
                 raise TypeError("Wrapper constructor must have at least one argument")
             elif n == 1:
@@ -516,8 +518,12 @@ class CffiWrapperFactory:
                 if release_native is None:
                     raise ValueError(f"Wrapper class '{type(wrapper_type)}' has three constructor arguments; the argument 'release_native' cannot be None")
                 return wrapper_type(obj, release_native, type_id)
+            elif n == 4:
+                if parameters[3].default == parameters[3].empty:
+                    raise ValueError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must have a default value")
+                return wrapper_type(obj, release_native, type_id)
             else:
-                raise NotImplementedError("Wrapper constructors with more than 3 arguments are not yet supported")
+                raise NotImplementedError("Wrapper constructors with more than 4 arguments are not yet supported")
 
 
 WrapperCreationFunction = Callable[[Any, str, Callable], DeletableCffiNativeHandle]
