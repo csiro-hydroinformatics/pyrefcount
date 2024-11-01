@@ -34,10 +34,8 @@ else:
     dir_path = os.path.join(pkg_dir, "tests", "test_native_library", "build")
 
 native_lib_path = os.path.join(dir_path, fname)
-native_lib_path = "/home/per202/src/pyrefcount/tests/test_native_library/build/libtest_native_library.so"
 
 assert os.path.exists(native_lib_path)
-
 
 ut_ffi = FFI()
 
