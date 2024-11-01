@@ -484,6 +484,7 @@ class CffiWrapperFactory:
             CffiNativeHandle: cffi wrapper
         """        
         from inspect import signature
+        from typing import get_type_hints
         if type_id is None:
             raise ValueError("Type ID provided cannot be None")
         if type_id not in self._api_type_wrapper.keys():
@@ -507,7 +508,7 @@ class CffiWrapperFactory:
             parameters = [v for k, v in s.parameters.items()]
             # [<Parameter "handle: Any">, <Parameter "release_native: Callable[[Any], NoneType]">, <Parameter "type_id: Optional[str] = None">, <Parameter "prior_ref_count: int = 0">]
             if n == 0:
-                raise TypeError("Wrapper constructor must have at least one argument")
+                raise TypeError(f"Wrapper class '{wrapper_type.__name__}' has no constructor arguments; at least one is required")
             elif n == 1:
                 return wrapper_type(obj)
             elif n == 2:
@@ -519,11 +520,17 @@ class CffiWrapperFactory:
                     raise ValueError(f"Wrapper class '{type(wrapper_type)}' has three constructor arguments; the argument 'release_native' cannot be None")
                 return wrapper_type(obj, release_native, type_id)
             elif n == 4:
+                p = parameters[3]
+                # constructor = wrapper_type.__init__
+                # type_hints = get_type_hints(constructor)
+                param_type = p.annotation
+                if param_type is not int:
+                    raise TypeError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must be an integer")
                 if parameters[3].default == parameters[3].empty:
                     raise ValueError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must have a default value")
                 return wrapper_type(obj, release_native, type_id)
             else:
-                raise NotImplementedError("Wrapper constructors with more than 4 arguments are not yet supported")
+                raise NotImplementedError( f"Wrapper class '{wrapper_type.__name__}' has more than 4 arguments; this is not supported")
 
 
 WrapperCreationFunction = Callable[[Any, str, Callable], DeletableCffiNativeHandle]

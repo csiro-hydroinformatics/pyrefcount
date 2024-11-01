@@ -1,7 +1,7 @@
 import gc
 import os
 import sys
-from typing import Any, Callable
+from typing import Any, Callable, List, Optional
 
 import pytest
 from cffi import FFI
@@ -154,6 +154,25 @@ class DogOwner(CustomCffiNativeHandle):
         self.dog.release()
         return True
 
+class CrocFiveParameters(CffiNativeHandle):
+    def __init__(
+        self,
+        pointer: Any,
+        release_native: Callable,
+        type_id: str = "",
+        prior_ref_count: int = 0,
+        some_fifth_parameter: float = 0.0,
+    ):
+        super(CrocFiveParameters, self).__init__(
+            pointer, type_id=type_id, prior_ref_count=prior_ref_count
+        )
+        self._release_native_handle = release_native
+        self.some_fifth_parameter = some_fifth_parameter
+
+    def _release_handle(self) -> bool:
+        self._release_native_handle(self.get_handle())
+        return True
+    
 
 class CrocFourParameters(CffiNativeHandle):
     def __init__(
@@ -166,6 +185,24 @@ class CrocFourParameters(CffiNativeHandle):
         super(CrocFourParameters, self).__init__(
             pointer, type_id=type_id, prior_ref_count=prior_ref_count
         )
+        self._release_native_handle = release_native
+
+    def _release_handle(self) -> bool:
+        self._release_native_handle(self.get_handle())
+        return True
+    
+class CrocFourParametersWrongFourthParameter(CffiNativeHandle):
+    def __init__(
+        self,
+        pointer: Any,
+        release_native: Callable,
+        type_id: str = "",
+        unsupported_argument_type: Optional[List] = None,
+    ):
+        super(CrocFourParametersWrongFourthParameter, self).__init__(
+            pointer, type_id=type_id, prior_ref_count=0
+        )
+        self.unsupported_argument_type = unsupported_argument_type
         self._release_native_handle = release_native
 
     def _release_handle(self) -> bool:
@@ -513,6 +550,21 @@ def test_cffi_wrapper_factory_various_ctors():
     # assert croc_four._release_handle == ut_dll.release
     del croc_four
     gc.collect()
+
+    # four, but not with the expected fourth parameter
+    pointer_croc = ut_dll.create_croc()
+    _api_type_wrapper.update({"CROC_PTR": CrocFourParametersWrongFourthParameter})
+    with pytest.raises(TypeError):
+        _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=ut_dll.release)
+    # manual cleanup for the sake of being pedantic
+    ut_dll.release(pointer_croc)
+    gc.collect()
+
+    # five, not supported
+    pointer_croc = ut_dll.create_croc()
+    _api_type_wrapper.update({"CROC_PTR": CrocFiveParameters})
+    with pytest.raises(NotImplementedError):
+        _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=ut_dll.release)
 
     # manual cleanup for the sake of being pedantic
     ut_dll.release(pointer_croc)
