@@ -85,7 +85,7 @@ ut_ffi.cdef("extern void release( void* obj);")
 ut_ffi.cdef("extern void register_exception_callback(const void* callback);")
 ut_ffi.cdef("extern void trigger_callback();")
 
-ut_dll = ut_ffi.dlopen(native_lib_path, 1)  # Lazy loading
+ut_dll = ut_ffi.dlopen(native_lib_path, ut_ffi.RTLD_LAZY)  # Lazy loading
 
 _message_from_c: str = "<none>"
 

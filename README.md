@@ -95,7 +95,7 @@ ut_ffi.cdef('extern void say_walk( void* owner);')
 ut_ffi.cdef('extern void release( void* obj);')
 # etc.
 
-ut_dll = ut_ffi.dlopen('c:/path/to/test_native_library.dll', 1) # Lazy loading
+ut_dll = ut_ffi.dlopen('c:/path/to/test_native_library.dll', ut_ffi.RTLD_LAZY) # Lazy loading
 
 class CustomCffiNativeHandle(CffiNativeHandle):
     def __init__(self, pointer, prior_ref_count = 0):

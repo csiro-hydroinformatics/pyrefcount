@@ -39,7 +39,7 @@ class CffiNativeHandle(NativeHandle):
         void* create_some_object();
         dispose_of_some_object(void* obj);
     ''')
-    mydll_so = ffi.dlopen('/path/to/mydll.so')
+    mydll_so = ffi.dlopen('/path/to/mydll.so', ffi.RTLD_LAZY)
     cffi_void_ptr = mydll_so.create_some_object()
     ```
 
