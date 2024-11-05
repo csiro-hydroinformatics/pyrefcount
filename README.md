@@ -1,6 +1,6 @@
 # refcount - Python classes for reference counting
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt) ![status](https://img.shields.io/badge/status-stable-green.svg) [![Documentation Status](https://readthedocs.org/projects/pyrefcount/badge/?version=latest)](https://pyrefcount.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount/branch/master/graph/badge.svg?token=ZBBFq3ncAq)](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount)[![Python package](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml/badge.svg?branch=master)](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/csiro-hydroinformatics/pyrefcount/blob/main/LICENSE.txt) ![status](https://img.shields.io/badge/status-stable-green.svg) [![Documentation Status](https://readthedocs.org/projects/pyrefcount/badge/?version=latest)](https://pyrefcount.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount/branch/main/graph/badge.svg?token=ZBBFq3ncAq)](https://codecov.io/gh/csiro-hydroinformatics/pyrefcount)[![Python package](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml/badge.svg?branch=main)](https://github.com/csiro-hydroinformatics/pyrefcount/actions/workflows/build-matrix.yml)
 
 [![pypi version](https://img.shields.io/pypi/v/refcount)](https://pypi.org/project/refcount/)[![Conda Version](https://img.shields.io/conda/vn/conda-forge/refcount.svg)](https://anaconda.org/conda-forge/refcount)[![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/refcount?label=conda-downloads)](https://anaconda.org/conda-forge/refcount)
 
@@ -12,7 +12,7 @@ This package is primarily for managing resources in native libraries, written fo
 
 ## License
 
-MIT (see [License.txt](https://github.com/csiro-hydroinformatics/pyrefcount/blob/master/LICENSE.txt))
+MIT (see [License.txt](https://github.com/csiro-hydroinformatics/pyrefcount/blob/main/LICENSE.txt))
 
 ## Documentation
 

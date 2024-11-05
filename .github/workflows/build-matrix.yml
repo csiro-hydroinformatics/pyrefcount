@@ -5,7 +5,7 @@ name: matrix-build
 
 on:
   push:
-    branches: [ "experimental", "testing", "master" ]
+    branches: [ "experimental", "testing", "main" ]
   #pull_request:
   #  branches: [ "testing" ]
 

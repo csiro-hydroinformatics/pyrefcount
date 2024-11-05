@@ -1,22 +1,21 @@
 """Platform specific helpers to manage locating native dynamic libraries
 
-This module hosts features similar to https://github.com/rdotnet/dynamic-interop-dll/blob/master/DynamicInterop/PlatformUtility.cs
+This module hosts features similar to https://github.com/rdotnet/dynamic-interop-dll/blob/main/DynamicInterop/PlatformUtility.cs
 
 """
 
 import os
 import sys
-from glob import glob
-
 from ctypes.util import find_library as ctypes_find_library
+from glob import glob
 from typing import List, Optional, Union
 
 
-def library_short_filename(library_name: str, platform:Optional[str] = None) -> str:
+def library_short_filename(library_name: str, platform: Optional[str] = None) -> str:
     """Based on the library name, return the platform-specific expected library short file name
 
     Args:
-        library_name (str): name of the library, for instance 'R', which results out of this 
+        library_name (str): name of the library, for instance 'R', which results out of this
             function  as 'libR.so' on Linux and 'R.dll' on Windows
 
     Raises:
@@ -39,8 +38,9 @@ def library_short_filename(library_name: str, platform:Optional[str] = None) -> 
         else:
             raise NotImplementedError(f"Platform '{platform}' is not (yet) supported")
 
-def find_full_path(name: str, prefix:Optional[str]=None) -> Union[str, None]:
-    """Find the full path of a library in under the python 
+
+def find_full_path(name: str, prefix: Optional[str] = None) -> Union[str, None]:
+    """Find the full path of a library in under the python
         installation directory, or as devised by ctypes.find_library
 
     Args:
@@ -55,7 +55,7 @@ def find_full_path(name: str, prefix:Optional[str]=None) -> Union[str, None]:
         '/home/xxxyyy/anaconda3/envs/wqml/lib/libgfortran.so'
         >>> find_full_path('R')
         'libR.so'
-    """    
+    """
     full_libpath = None
     if prefix is None:
         prefix = sys.prefix
@@ -81,7 +81,7 @@ def find_full_path(name: str, prefix:Optional[str]=None) -> Union[str, None]:
 
 #     Returns:
 #         List[str]: zero or more matches, full paths to candidate files
-#     """    
+#     """
 #     if directories is None:
 #         directories = []
 #     full_paths = [os.path.join(d, dll_short_name) for d in directories]
@@ -109,9 +109,12 @@ def find_full_path(name: str, prefix:Optional[str]=None) -> Union[str, None]:
 
 
 def augment_path_env(
-    added_paths: Union[str, List[str]], subfolder: str = None, to_env: str = "PATH", prepend:bool=False
+    added_paths: Union[str, List[str]],
+    subfolder: str = None,
+    to_env: str = "PATH",
+    prepend: bool = False,
 ) -> str:
-    """Build a new list of directory paths, prepending prior to an existing env var with paths. 
+    """Build a new list of directory paths, prepending prior to an existing env var with paths.
 
     New paths are prepended only if they do already exist.
 
@@ -131,11 +134,13 @@ def augment_path_env(
         prior_paths = prior_path_env.split(path_sep)
     else:
         prior_paths = []
+
     def _my_path_join(x, subfolder):  # avoid trailing path separator
         if subfolder is not None and subfolder != "":
             return os.path.join(x, subfolder)
         else:
             return x
+
     if subfolder is not None:
         added_paths = [_my_path_join(x, subfolder) for x in added_paths]
     added_paths = [x for x in added_paths if os.path.exists(x)]
@@ -146,6 +151,7 @@ def augment_path_env(
     # TODO: check for duplicate folders, perhaps.
     new_env_val = path_sep.join(new_paths)
     return new_env_val
+
 
 # TODO: is that of any use still?? refactored out from uchronia and co. , but appears unused.
 # def find_first_full_path(native_lib_file_name, readable_lib_name = "native library", env_var_name = ""):
@@ -193,16 +199,18 @@ def augment_path_env(
 
 
 # # The following is useful, but idiosyncratic. Consider and rethink.
-def _win_architecture(platform:str=None):
+def _win_architecture(platform: str = None):
     platform = sys.platform if platform is None else platform
     if platform == "win32":
         arch = os.environ["PROCESSOR_ARCHITECTURE"]
-        return "64" if arch == 'AMD64' else '32'
+        return "64" if arch == "AMD64" else "32"
     else:
         return ""
 
 
-def build_new_path_env (from_env:str='LIBRARY_PATH', to_env:str='PATH', platform:str=None) -> str:
+def build_new_path_env(
+    from_env: str = "LIBRARY_PATH", to_env: str = "PATH", platform: str = None
+) -> str:
     """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
     Args:
@@ -210,7 +218,7 @@ def build_new_path_env (from_env:str='LIBRARY_PATH', to_env:str='PATH', platform
         to_env (str, optional): environment variable to update, most likely the Windows PATH env var. Defaults to 'PATH'.
 
     Returns:
-        str: the proposed updated content for the 'to_env' environment variable. 
+        str: the proposed updated content for the 'to_env' environment variable.
     """
     platform = sys.platform if platform is None else platform
     path_sep = os.pathsep
@@ -221,14 +229,19 @@ def build_new_path_env (from_env:str='LIBRARY_PATH', to_env:str='PATH', platform
         shared_lib_paths_vec = shared_lib_paths.split(path_sep)
         return augment_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
     else:
-        print("WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because a native library is not found, this is a likely cause.".format(from_env, to_env))
+        print(
+            "WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because a native library is not found, this is a likely cause.".format(
+                from_env, to_env
+            )
+        )
         prior_path_env = os.environ.get(to_env)
         if prior_path_env is not None:
             return prior_path_env
         else:
             return ""
 
-def update_path_windows (from_env:str='LIBRARY_PATH', to_env:str='PATH') -> None:
+
+def update_path_windows(from_env: str = "LIBRARY_PATH", to_env: str = "PATH") -> None:
     """If called on Windows, append an environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
     Args:
@@ -238,10 +251,5 @@ def update_path_windows (from_env:str='LIBRARY_PATH', to_env:str='PATH') -> None
     Returns:
         None
     """
-    if(sys.platform == 'win32'):
+    if sys.platform == "win32":
         os.environ[to_env] = build_new_path_env(from_env, to_env, sys.platform)
-
-
-
-
-
