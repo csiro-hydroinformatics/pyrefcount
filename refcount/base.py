@@ -40,7 +40,6 @@ class ReferenceCounter(object):
         """
         self._ref_count = self._ref_count - 1
 
-
 class NativeHandle(ReferenceCounter):
     """A base class for wrappers around otherwise "unmanaged" resources e.g. in a native library.
 

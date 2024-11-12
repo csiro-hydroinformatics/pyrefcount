@@ -1,2 +1,0 @@
-cffi>=1.11.5
-typing-extensions>=4.3.0

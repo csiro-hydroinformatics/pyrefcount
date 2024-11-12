@@ -1,6 +1,6 @@
 # Changelog
 
-<!--next-version-placeholder-->
+<!-- insertion marker -->
 
 ## v1.2.0 (2023-01-25)
 

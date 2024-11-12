@@ -4,45 +4,64 @@
 
 # Project information
 site_name: "refcount - Python package for reference counting"
-# site_url: https://squidfunk.github.io/mkdocs-material/
 site_author: "Jean-Michel Perraud"
 site_description: >-
   This package is primarily for managing resources, for instance from 
   native libraries written for instance in C++, from Python.
+# Do I need the site_url?? not sure. Works as is.
+# site_url: "https://pyrefcount.readthedocs.io/en/latest/"
+repo_url: https://github.com/csiro-hydroinformatics/pyrefcount
+watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, refcount]
+# Copyright
+copyright: Copyright &copy; 2016 - 2024 CSIRO
+edit_uri: edit/main/docs/
 
 # Repository
 repo_name: csiro-hydroinformatics/pyrefcount
-repo_url: https://github.com/csiro-hydroinformatics/pyrefcount
 
 docs_dir: './docs'
 
-# Copyright
-copyright: Copyright &copy; 2016 - 2022 CSIRO
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
 
 theme:
-  # name: "readthedocs"
   name: "material"
+  # custom_dir: docs/.overrides
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode  # Default values, taken from mkdocs_theme.yml
+  - media: "(prefers-color-scheme)"
+    toggle:
+      icon: material/brightness-auto
+      name: Switch to light mode
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: teal
+    accent: purple
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    accent: lime
+    toggle:
+      icon: material/weather-night
+      name: Switch to system preference
   # Don't include MkDocs' JavaScript
   include_search_page: false
   search_index_only: true
   language: en
   features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
     - content.code.annotate
-    # - content.tabs.link
+    - content.code.copy
     - content.tooltips
+    - navigation.footer
+    # - content.tabs.link
     # - header.autohide
     # - navigation.expand
     - navigation.indexes
@@ -123,6 +142,11 @@ nav:
     - Submodule interop: interop-module.md
     - Submodule putils: putils-module.md
     - Submodule base: base-module.md
+  - Development:
+    - Contributing: contributing.md
+    - Code of Conduct: code_of_conduct.md
+    - Coverage report: coverage.md
+    - Changelog: changelog.md
   - Appendix:
     - Developer Notes: tech_notes.md
     # - Sandpit: sandpit.md
