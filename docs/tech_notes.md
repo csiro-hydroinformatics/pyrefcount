@@ -2,21 +2,17 @@
 
 **These are notes for the package maintainer(s)**. Most users can ignore them.
 
-Note to self: as of Jan 2019 also using github_jm\didactique\doc\know_how.md to log the exploratory and release processes around `refcount`
+## History
 
-## Poetry
+* Migrated to use poetry 2023-04 after reading [https://py-pkgs.org](https://py-pkgs.org), poetry grated but got over it. 
+* Jan 2025. poetry 2.0, Significant changes to the pyproject toml.
+  * installing poetry via pipx.
+  * BUT had started a branch for packaging with `uv`. Time to move on anyway.
+  * Trialing package development using [this `copier-uv`template](https://pawamoy.github.io/copier-uv/work/). Note also the [blog post from Simon Wilson on uv](https://til.simonwillison.net/python/uv-cli-apps)
 
-2023-04
 
 ```sh
 cd ~/src/pyrefcount
-```
-
-[https://py-pkgs.org](https://py-pkgs.org)
-
-```sh
-mamba env list
-mamba create -n poetry python=3.9 poetry
 ```
 
 ## Release steps
@@ -27,7 +23,6 @@ mamba create -n poetry python=3.9 poetry
 * check readme is up to date
 
 ```sh
-mamba activate poetry
 poetry install
 poetry version
 pytest tests/
