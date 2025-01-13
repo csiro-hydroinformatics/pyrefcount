@@ -1,73 +1,148 @@
 # Contributing
 
-Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given.
+Contributions are welcome, and they are greatly appreciated!
+Every little bit helps, and credit will always be given.
 
-## Types of Contributions
+## Environment setup
 
-### Report Bugs
+Nothing easier!
 
-If you are reporting a bug, please include:
+Fork and clone the repository, then:
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+```bash
+cd pyrefcount
+make setup
+```
 
-### Fix Bugs
+> NOTE:
+> If it fails for some reason,
+> you'll need to install
+> [uv](https://github.com/astral-sh/uv)
+> manually.
+>
+> You can install it with:
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
+>
+> Now you can try running `make setup` again,
+> or simply `uv sync`.
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
+You now have the dependencies installed.
 
-### Implement Features
+Run `make help` to see all the available actions!
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+## Tasks
 
-### Write Documentation
+The entry-point to run commands and tasks is the `make` Python script,
+located in the `scripts` directory. Try running `make` to show the available commands and tasks.
+The *commands* do not need the Python dependencies to be installed,
+while the *tasks* do.
+The cross-platform tasks are written in Python, thanks to [duty](https://github.com/pawamoy/duty).
 
-You can never have enough documentation! Please feel free to contribute to any
-part of the documentation, such as the official docs, docstrings, or even
-on the web in blog posts, articles, and such.
+If you work in VSCode, we provide
+[an action to configure VSCode](https://pawamoy.github.io/copier-uv/work/#vscode-setup)
+for the project.
 
-### Submit Feedback
+## Development
 
-If you are proposing a feature:
+As usual:
 
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+1. create a new branch: `git switch -c feature-or-bugfix-name`
+1. edit the code and/or the documentation
 
-## Get Started!
+**Before committing:**
 
-Ready to contribute? Here's how to set up `refcount` for local development.
+1. run `make format` to auto-format the code
+1. run `make check` to check everything (fix any warning)
+1. run `make test` to run the tests (fix any issue)
+1. if you updated the documentation or the project dependencies:
+    1. run `make docs`
+    1. go to http://localhost:8000 and check that everything looks good
+1. follow our [commit message convention](#commit-message-convention)
 
-1. Download a copy of `refcount` locally.
-2. Install `refcount` using `poetry`:
+If you are unsure about how to fix or ignore a warning,
+just let the continuous integration fail,
+and we will help you during review.
 
-    ```console
-    $ poetry install
-    ```
+Don't bother updating the changelog, we will take care of this.
 
-3. Use `git` (or similar) to create a branch for local development and make your changes:
+## Commit message convention
 
-    ```console
-    $ git checkout -b name-of-your-bugfix-or-feature
-    ```
+Commit messages must follow our convention based on the
+[Angular style](https://gist.github.com/stephenparish/9941e89d80e2bc58a153#format-of-the-commit-message)
+or the [Karma convention](https://karma-runner.github.io/4.0/dev/git-commit-msg.html):
 
-4. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+```
+<type>[(scope)]: Subject
 
-5. Commit your changes and open a pull request.
+[Body]
+```
 
-## Pull Request Guidelines
+**Subject and body must be valid Markdown.**
+Subject must have proper casing (uppercase for first letter
+if it makes sense), but no dot at the end, and no punctuation
+in general.
 
-Before you submit a pull request, check that it meets these guidelines:
+Scope and body are optional. Type can be:
 
-1. The pull request should include additional tests if appropriate.
-2. If the pull request adds functionality, the docs should be updated.
-3. The pull request should work for all currently supported operating systems and versions of Python.
+- `build`: About packaging, building wheels, etc.
+- `chore`: About packaging or repo/files management.
+- `ci`: About Continuous Integration.
+- `deps`: Dependencies update.
+- `docs`: About documentation.
+- `feat`: New feature.
+- `fix`: Bug fix.
+- `perf`: About performance.
+- `refactor`: Changes that are not features or bug fixes.
+- `style`: A change in code style/format.
+- `tests`: About tests.
 
-## Code of Conduct
+If you write a body, please add trailers at the end
+(for example issues and PR references, or co-authors),
+without relying on GitHub's flavored Markdown:
 
-Please note that the `refcount` project is released with a
-Code of Conduct. By contributing to this project you agree to abide by its terms.
+```
+Body.
+
+Issue #10: https://github.com/namespace/project/issues/10
+Related to PR namespace/other-project#15: https://github.com/namespace/other-project/pull/15
+```
+
+These "trailers" must appear at the end of the body,
+without any blank lines between them. The trailer title
+can contain any character except colons `:`.
+We expect a full URI for each trailer, not just GitHub autolinks
+(for example, full GitHub URLs for commits and issues,
+not the hash or the #issue-number).
+
+We do not enforce a line length on commit messages summary and body,
+but please avoid very long summaries, and very long lines in the body,
+unless they are part of code blocks that must not be wrapped.
+
+## Pull requests guidelines
+
+Link to any related issue in the Pull Request message.
+
+During the review, we recommend using fixups:
+
+```bash
+# SHA is the SHA of the commit you want to fix
+git commit --fixup=SHA
+```
+
+Once all the changes are approved, you can squash your commits:
+
+```bash
+git rebase -i --autosquash main
+```
+
+And force-push:
+
+```bash
+git push -f
+```
+
+If this seems all too complicated, you can push or force-push each new commit,
+and we will squash them ourselves if needed, before merging.

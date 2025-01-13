@@ -11,8 +11,28 @@
   * Trialing package development using [this `copier-uv`template](https://pawamoy.github.io/copier-uv/work/). Note also the [blog post from Simon Wilson on uv](https://til.simonwillison.net/python/uv-cli-apps)
 
 
+## log
+
 ```sh
+# to update to the latest version
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool upgrade copier
 cd ~/src/pyrefcount
+copier copy --trust "gh:pawamoy/copier-uv" .
+direnv allow
+```
+
+Merging some changes manually for some overwritten files:
+
+```text
+        modified:   .gitignore
+        modified:   CODE_OF_CONDUCT.md
+        modified:   CONTRIBUTING.md
+        modified:   README.md
+        modified:   docs/index.md
+        modified:   mkdocs.yml
+        modified:   pyproject.toml
+        modified:   tests/__init__.py
 ```
 
 ## Release steps
