@@ -1051,6 +1051,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#deploying-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying docs
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1175,6 +1184,15 @@
   <a href="#manual-syntax-changes" class="md-nav__link">
     <span class="md-ellipsis">
       Manual syntax changes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploying-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying docs
     </span>
   </a>
   
@@ -1311,6 +1329,36 @@ No fixes available (99 hidden fixes can be enabled with the `--unsafe-fixes` opt
 <div class="highlight"><pre><span></span><code>`typing.List` is deprecated, use `list` instead Ruff UP035
 </code></pre></div>
 <p>These are a bit of a bother. Type annotations, I think, encouraged e.g. the use of <code>List</code> instead of <code>list</code> years ago. This grates.</p>
+<h3 id="deploying-docs">Deploying docs<a class="headerlink" href="#deploying-docs" title="Permanent link">&para;</a></h3>
+<p><code>make docs-deploy</code> requires mkdocs for insiders.  </p>
+<p><code>mkdocs gh-deploy</code>:</p>
+<div class="highlight"><pre><span></span><code>ERROR   -  Config value &#39;markdown_extensions&#39;: Failed to load extension &#39;callouts&#39;.
+           ModuleNotFoundError: No module named &#39;callouts&#39;
+</code></pre></div>
+<p>This was because I had not activated the environment with <code>. ./.venv/bin/activate</code></p>
+<div class="highlight"><pre><span></span><code>mkdocs<span class="w"> </span>build
+mkdocs<span class="w"> </span>gh-deploy
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>release<span class="w"> </span><span class="nv">version</span><span class="o">=</span><span class="m">1</span>.2.7
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>      raise HTTPError(http_error_msg, response=self)
+  requests.exceptions.HTTPError: 400 Client Error: The use of local versions in &lt;Version(&#39;1.2.7+d20250114&#39;)&gt; is not allowed. See https://packaging.python.org/specifications/core-metadata for more information. for url: https://upload.pypi.org/legacy/
+</code></pre></div>
+<p>subsequent attempts have an unclear effect, possibly none</p>
+<div class="highlight"><pre><span></span><code>✓ Staging files
+✗ Committing changes (1)
+  &gt; git commit -m &quot;chore: Prepare release 1.2.7&quot;
+  On branch testing
+  Your branch is up to date with &#39;origin/testing&#39;.
+</code></pre></div>
+<p><code>make release</code> never seems to complete. At best it created some wheels with commit hashs such as <code>refcount-1.2.7.abedeff12456.tar.gz</code> of something like that and pypi refuses to let them be uploaded. </p>
+<p>I ended up having to delete tags and doing:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># add and commit</span>
+git<span class="w"> </span>tag<span class="w"> </span>v1.2.7
+make<span class="w"> </span>build
+</code></pre></div>
+<p>creates files <code>refcount-1.2.7-py3-none-any.whl  refcount-1.2.7.tar.gz</code> which look suitable for upload to pypi.</p>
+<p>Yup, <code>✓ Publishing source and wheel distributions to PyPI</code></p>
 <h2 id="release-steps">Release steps<a class="headerlink" href="#release-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li>all UT pass</li>
