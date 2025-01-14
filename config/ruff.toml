@@ -4,6 +4,7 @@ line-length = 120
 [lint]
 exclude = [
     "tests/fixtures/*.py",
+    "tests/*.py",
 ]
 select = [
     "A", "ANN", "ARG",
@@ -44,6 +45,7 @@ ignore = [
     "PLR0915",  # Too many statements
     "SLF001", # Private member accessed
     "TRY003",  # Avoid specifying long messages outside the exception class
+    "UP035", # https://docs.astral.sh/ruff/rules/deprecated-import/
 ]
 
 [lint.per-file-ignores]

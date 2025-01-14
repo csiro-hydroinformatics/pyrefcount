@@ -1,10 +1,14 @@
+"""Tests for the handling of native pointers via wrappers and utilities."""
 import gc
 import os
 import sys
-from typing import Any, Callable, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
 import pytest
 from cffi import FFI
+
+if TYPE_CHECKING:
+    from refcount.interop import CffiData
 
 from refcount.interop import (
     CffiNativeHandle,
@@ -91,18 +95,21 @@ _message_from_c: str = "<none>"
 
 
 @ut_ffi.callback("void(char *)")
-def called_back_from_c(some_string: str):
+def called_back_from_c(some_string: str) -> (bytes | str):
     """This function is called when uchronia raises an exception.
-    It sets the global variable ``_exception_txt_raised_uchronia``
+
+    It sets the global variable ``_exception_txt_raised_uchronia``.
 
     :param cdata exception_string: Exception string.
     """
-    global _message_from_c
+    global _message_from_c  # noqa: PLW0603
     _message_from_c = ut_ffi.string(some_string)
 
 
 class CustomCffiNativeHandle(CffiNativeHandle):
-    def __init__(self, pointer, type_id="", prior_ref_count=0):
+    """a custom native resource handle for testing purposes."""
+    def __init__(self, pointer: "CffiData", type_id:str="", prior_ref_count:int=0):
+        """Initialize a reference counter for a resource handle, with an initial reference count."""
         super(CustomCffiNativeHandle, self).__init__(
             pointer,
             type_id=type_id,
@@ -115,13 +122,15 @@ class CustomCffiNativeHandle(CffiNativeHandle):
 
 
 class Dog(CustomCffiNativeHandle):
-    def __init__(self, pointer=None):
+    """A custom class for testing purposes."""
+    def __init__(self, pointer:"CffiData"=None):
+        """A custom class for testing purposes."""
         if pointer is None:
             pointer = ut_dll.create_dog()
         super(Dog, self).__init__(pointer, type_id="DOG_PTR")
 
     @property
-    def native_reference_count(self):
+    def native_reference_count(self) -> int:
         return ut_dll.get_dog_refcount(self.get_handle())
 
     @staticmethod
@@ -137,7 +146,7 @@ class DogOwner(CustomCffiNativeHandle):
         self.dog.add_ref()
 
     @property
-    def native_reference_count(self):
+    def native_reference_count(self) -> int:
         return ut_dll.get_owner_refcount(self.get_handle())
 
     @staticmethod

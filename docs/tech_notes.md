@@ -67,6 +67,14 @@ Found 367 errors (148 fixed, 219 remaining).
 No fixes available (99 hidden fixes can be enabled with the `--unsafe-fixes` option).
 ```
 
+### Manual syntax changes
+
+```
+`typing.List` is deprecated, use `list` instead Ruff UP035
+```
+
+These are a bit of a bother. Type annotations, I think, encouraged e.g. the use of `List` instead of `list` years ago. This grates.
+
 ## Release steps
 
 * all UT pass
