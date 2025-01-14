@@ -2,6 +2,7 @@ name: ci
 
 on:
   push:
+    branches: [ "testing", "main" ]
   pull_request:
     branches:
     - main
@@ -64,12 +65,7 @@ jobs:
         - macos-latest
         - windows-latest
         python-version:
-        - "3.9"
-        - "3.10"
-        - "3.11"
         - "3.12"
-        - "3.13"
-        - "3.14"
         resolution:
         - highest
         - lowest-direct
@@ -79,7 +75,7 @@ jobs:
         - os: windows-latest
           resolution: lowest-direct
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.python-version == '3.14' }}
+    # continue-on-error: ${{ matrix.python-version == '3.14' }}
 
     steps:
     - name: Checkout
