@@ -112,7 +112,19 @@ subsequent attempts have an unclear effect, possibly none
   Your branch is up to date with 'origin/testing'.
 ```
 
-subsequent attempts are 
+`make release` never seems to complete. At best it created some wheels with commit hashs such as `refcount-1.2.7.abedeff12456.tar.gz` of something like that and pypi refuses to let them be uploaded. 
+
+I ended up having to delete tags and doing:
+
+```sh
+# add and commit
+git tag v1.2.7
+make build
+```
+
+creates files `refcount-1.2.7-py3-none-any.whl  refcount-1.2.7.tar.gz` which look suitable for upload to pypi.
+
+Yup, `✓ Publishing source and wheel distributions to PyPI`
 
 ## Release steps
 
