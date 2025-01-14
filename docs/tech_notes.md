@@ -97,6 +97,23 @@ mkdocs gh-deploy
 make release version=1.2.7
 ```
 
+```text
+      raise HTTPError(http_error_msg, response=self)
+  requests.exceptions.HTTPError: 400 Client Error: The use of local versions in <Version('1.2.7+d20250114')> is not allowed. See https://packaging.python.org/specifications/core-metadata for more information. for url: https://upload.pypi.org/legacy/
+```
+
+subsequent attempts have an unclear effect, possibly none
+
+```
+✓ Staging files
+✗ Committing changes (1)
+  > git commit -m "chore: Prepare release 1.2.7"
+  On branch testing
+  Your branch is up to date with 'origin/testing'.
+```
+
+subsequent attempts are 
+
 ## Release steps
 
 * all UT pass
