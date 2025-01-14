@@ -35,6 +35,38 @@ Merging some changes manually for some overwritten files:
         modified:   tests/__init__.py
 ```
 
+.envrc: 
+
+```sh
+PATH_add scripts
+export PYTHON_VERSIONS="3.12"
+```
+
+```sh
+make setup
+
+make check-quality
+```
+
+Lots of issues, but mostly e.g. single versus double quotes. In particular launch.json as it has some useful settings for native debugging.
+
+### ruff
+
+ruff setup. Back up files under .vscode just in case.
+
+`make vscode`: "To enable or disable Ruff after changing the `enable` setting, you must restart VS Code."
+
+`uv run ruff check --fix`
+
+it fixes only one error compared to 141 reported as fixable by `make check-quality`.
+
+`uv run ruff check --config=config/ruff.toml --fix`
+
+```text
+Found 367 errors (148 fixed, 219 remaining).
+No fixes available (99 hidden fixes can be enabled with the `--unsafe-fixes` option).
+```
+
 ## Release steps
 
 * all UT pass

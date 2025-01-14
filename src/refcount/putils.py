@@ -28,15 +28,13 @@ def library_short_filename(library_name: str, platform: Optional[str] = None) ->
         platform = sys.platform
     if library_name is None:
         raise ValueError("library_name cannot be None")
-    else:
-        if platform == "win32":
-            return "{}.dll".format(library_name)
-        elif platform == "linux":
-            return "lib{}.so".format(library_name)
-        elif platform == "darwin":
-            return "lib{}.dylib".format(library_name)
-        else:
-            raise NotImplementedError(f"Platform '{platform}' is not (yet) supported")
+    if platform == "win32":
+        return f"{library_name}.dll"
+    if platform == "linux":
+        return f"lib{library_name}.so"
+    if platform == "darwin":
+        return f"lib{library_name}.dylib"
+    raise NotImplementedError(f"Platform '{platform}' is not (yet) supported")
 
 
 def find_full_path(name: str, prefix: Optional[str] = None) -> Union[str, None]:
@@ -61,12 +59,11 @@ def find_full_path(name: str, prefix: Optional[str] = None) -> Union[str, None]:
         prefix = sys.prefix
     if name is None:
         return None
-    else:
-        lib_short_fname = library_short_filename(name)
-        prefixed_lib_pat = os.path.join(prefix, "lib*", lib_short_fname)
-        prefixed_libs = glob(prefixed_lib_pat)
-        if prefixed_libs:
-            full_libpath = prefixed_libs[0]
+    lib_short_fname = library_short_filename(name)
+    prefixed_lib_pat = os.path.join(prefix, "lib*", lib_short_fname)
+    prefixed_libs = glob(prefixed_lib_pat)
+    if prefixed_libs:
+        full_libpath = prefixed_libs[0]
     if not full_libpath:
         full_libpath = ctypes_find_library(name)
     return full_libpath
@@ -138,8 +135,7 @@ def augment_path_env(
     def _my_path_join(x, subfolder):  # avoid trailing path separator
         if subfolder is not None and subfolder != "":
             return os.path.join(x, subfolder)
-        else:
-            return x
+        return x
 
     if subfolder is not None:
         added_paths = [_my_path_join(x, subfolder) for x in added_paths]
@@ -204,12 +200,11 @@ def _win_architecture(platform: str = None):
     if platform == "win32":
         arch = os.environ["PROCESSOR_ARCHITECTURE"]
         return "64" if arch == "AMD64" else "32"
-    else:
-        return ""
+    return ""
 
 
 def build_new_path_env(
-    from_env: str = "LIBRARY_PATH", to_env: str = "PATH", platform: str = None
+    from_env: str = "LIBRARY_PATH", to_env: str = "PATH", platform: str = None,
 ) -> str:
     """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
@@ -228,17 +223,13 @@ def build_new_path_env(
         subfolder = _win_architecture()
         shared_lib_paths_vec = shared_lib_paths.split(path_sep)
         return augment_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
-    else:
-        print(
-            "WARNING: a function was called to look for environment variable '{0}' to update the environment variable '{1}', but was not found. This may be fine, but if the package fails to load because a native library is not found, this is a likely cause.".format(
-                from_env, to_env
-            )
-        )
-        prior_path_env = os.environ.get(to_env)
-        if prior_path_env is not None:
-            return prior_path_env
-        else:
-            return ""
+    print(
+        f"WARNING: a function was called to look for environment variable '{from_env}' to update the environment variable '{to_env}', but was not found. This may be fine, but if the package fails to load because a native library is not found, this is a likely cause.",
+    )
+    prior_path_env = os.environ.get(to_env)
+    if prior_path_env is not None:
+        return prior_path_env
+    return ""
 
 
 def update_path_windows(from_env: str = "LIBRARY_PATH", to_env: str = "PATH") -> None:

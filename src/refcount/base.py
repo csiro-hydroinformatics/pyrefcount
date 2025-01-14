@@ -1,10 +1,10 @@
-"""Base classes for reference counting
+"""Base classes forreference counting
 """
 
 from typing import Any
 
 
-class ReferenceCounter(object):
+class ReferenceCounter:
     """A base class for reference counters
 
     Attributes:
@@ -49,7 +49,7 @@ class NativeHandle(ReferenceCounter):
     """
 
     def __init__(self, handle: Any = None, prior_ref_count: int = 0):
-        """initialize a reference counter for a resource handle, with an initial reference count.
+        """Initialize a reference counter for a resource handle, with an initial reference count.
 
         Args:
             handle (object): The handle (e.g. cffi pointer) to the native resource.

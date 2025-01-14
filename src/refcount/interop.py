@@ -2,9 +2,10 @@
 """
 
 from typing import Any, Callable, Dict, Optional, Union
-from typing_extensions import TypeAlias 
 
 from cffi import FFI
+from typing_extensions import TypeAlias
+
 from refcount.base import NativeHandle
 
 # This is a Hack. I cannot use FFI.CData in type hints.
@@ -75,7 +76,7 @@ class CffiNativeHandle(NativeHandle):
         # TODO checks on handle
         self._type_id = type_id
         self._finalizing: bool = False
-        self._handle: "CffiData" = None
+        self._handle: CffiData = None
         if handle is None:
             return  # defer setting the handle to the inheritor.
         self._set_handle(handle, prior_ref_count)
@@ -165,28 +166,28 @@ class CffiNativeHandle(NativeHandle):
     #     return self._handle
 
     def __str__(self) -> str:
-        """ string representation """
+        """String representation"""
         if self.type_id is None or self.type_id == "":
             return "CFFI pointer handle to a native pointer " + str(self._handle)
         return 'CFFI pointer handle to a native pointer of type id "' + self.type_id + '"'
 
     @property
-    def ptr(self) -> 'CffiData':
-        """ Return the pointer (cffi object) """
+    def ptr(self) -> "CffiData":
+        """Return the pointer (cffi object)"""
         return self._handle
 
     @property
     def obj(self) -> Any:
-        """ Return the object pointed to (cffi object) """
+        """Return the object pointed to (cffi object)"""
         return self._handle[0]
 
 
     def __repr__(self) -> str:
-        """ string representation """
+        """String representation"""
         return str(self)
 
     def __del__(self) -> None:
-        """ destructor, triggering the release of the underlying handled resource if the reference count is 0 """
+        """destructor, triggering the release of the underlying handled resource if the reference count is 0"""
         if self._handle is not None:
             # if not self._release_native is None:
             # Protect against accessing properties
@@ -229,7 +230,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
             prior_ref_count (int, optional): [description]. The initial reference count. Defaults to 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
         super(DeletableCffiNativeHandle, self).__init__(
-            handle, type_id, prior_ref_count
+            handle, type_id, prior_ref_count,
         )
         self._release_native = release_native
         self._set_handle(handle, prior_ref_count)
@@ -246,7 +247,7 @@ class DeletableCffiNativeHandle(CffiNativeHandle):
             return False
         if self._release_native is not None:
             self._release_native(
-                self._handle
+                self._handle,
             )  # TODO are trapped exceptions acceptable here?
             return True
 
@@ -277,7 +278,7 @@ class OwningCffiNativeHandle(CffiNativeHandle):
             prior_ref_count (int, optional): [description]. The initial reference count. Defaults to 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
         super(OwningCffiNativeHandle, self).__init__(
-            handle, type_id, prior_ref_count
+            handle, type_id, prior_ref_count,
         )
         self._set_handle(handle, prior_ref_count)
 
@@ -304,10 +305,9 @@ def wrap_cffi_native_handle(
     """
     if isinstance(obj, FFI.CData):
         return DeletableCffiNativeHandle(
-            obj, release_native=release_native, type_id=type_id
+            obj, release_native=release_native, type_id=type_id,
         )
-    else:
-        return obj
+    return obj
 
 
 def is_cffi_native_handle(x: Any, type_id: str = "") -> bool:
@@ -327,7 +327,7 @@ def is_cffi_native_handle(x: Any, type_id: str = "") -> bool:
 
 
 def unwrap_cffi_native_handle(
-    obj_wrapper: Any, stringent: bool = False
+    obj_wrapper: Any, stringent: bool = False,
 ) -> Union["CffiData", Any, None]:
     """Unwrap a reference counting wrapper and returns its CFFI pointer if it is found (wrapped or 'raw')
 
@@ -349,13 +349,11 @@ def unwrap_cffi_native_handle(
         return obj_wrapper.get_handle()
     if isinstance(obj_wrapper, FFI.CData):
         return obj_wrapper
-    else:
-        if stringent:
-            raise TypeError(
-                "Argument is neither a CffiNativeHandle nor a CFFI external pointer"
-            )
-        else:
-            return obj_wrapper
+    if stringent:
+        raise TypeError(
+            "Argument is neither a CffiNativeHandle nor a CFFI external pointer",
+        )
+    return obj_wrapper
 
 
 def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str) -> str:
@@ -371,14 +369,9 @@ def cffi_arg_error_external_obj_type(x: Any, expected_type_id: str) -> str:
         return "Expected a 'CffiNativeHandle' but instead got 'None'"
     if not is_cffi_native_handle(x):
         return (
-            "Expected a 'CffiNativeHandle' but instead got object of type '{0}'".format(
-                str(type(x))
-            )
+            f"Expected a 'CffiNativeHandle' but instead got object of type '{type(x)!s}'"
         )
-    else:
-        return "Expected a 'CffiNativeHandle' with underlying type id '{0}' but instead got one with type id '{1}'".format(
-            expected_type_id, x.type_id
-        )
+    return f"Expected a 'CffiNativeHandle' with underlying type id '{expected_type_id}' but instead got one with type id '{x.type_id}'"
 
 
 # Maybe, pending use cases:
@@ -392,7 +385,7 @@ class GenericWrapper:
     """A pass-through wrapper for python objects that are ready for C interop. "bytes" can be passed as C 'char*'
 
     This is mostly a facility to generate glue code more easily 
-    """    
+    """
 
     def __init__(self, handle: Any):
         self._handle = handle
@@ -402,7 +395,7 @@ class GenericWrapper:
         return self._handle
 
 def wrap_as_pointer_handle(
-    obj_wrapper: Any, stringent: bool = False
+    obj_wrapper: Any, stringent: bool = False,
 ) -> Union[CffiNativeHandle, OwningCffiNativeHandle, GenericWrapper]:
     """Wrap an object, if need be, so that its C API pointer appears accessible via a 'ptr' property
 
@@ -415,29 +408,27 @@ def wrap_as_pointer_handle(
 
     Returns:
         Union[CffiNativeHandle, OwningCffiNativeHandle, GenericWrapper, None]: wrapped object or None
-    """    
+    """
     # 2016-01-28 allowing null pointers, to unlock behavior of EstimateERRISParameters.
     # Reassess approach, even if other C API function will still catch the issue of null ptrs.
     if obj_wrapper is None:
         return GenericWrapper(None)
         # return GenericWrapper(FFI.NULL)  # Ended with kernel crashes and API call return, but unclear why
-    elif isinstance(obj_wrapper, CffiNativeHandle):
+    if isinstance(obj_wrapper, CffiNativeHandle):
         return obj_wrapper
-    elif isinstance(obj_wrapper, FFI.CData):
+    if isinstance(obj_wrapper, FFI.CData):
         return OwningCffiNativeHandle(obj_wrapper)
-    elif isinstance(obj_wrapper, bytes):
+    if isinstance(obj_wrapper, bytes):
         return GenericWrapper(obj_wrapper)
-    else:
-        if stringent:
-            raise TypeError(
-                "Argument is neither a CffiNativeHandle nor a CFFI external pointer, nor bytes"
-            )
-        else:
-            return obj_wrapper
+    if stringent:
+        raise TypeError(
+            "Argument is neither a CffiNativeHandle nor a CFFI external pointer, nor bytes",
+        )
+    return obj_wrapper
 
 
 def type_error_cffi(x:Union[CffiNativeHandle, Any], expected_type:str) -> str:
-    """DEPRECATED 
+    """DEPRECATED
     
     This function is deprecated; may still be in use in 'uchronia'. Use `cffi_arg_error_external_obj_type` instead.
 
@@ -462,11 +453,11 @@ class CffiWrapperFactory:
             api_type_wrapper (Dict[str,Any]): dictionary, mapping from type identifiers to callables, class constructors
             strict_wrapping (bool, optional): If true, type identifiers passed at wrapper creation time `create_wrapper` 
                 must be known or exceptions are raised. If False, it falls back on creating generic wrappers. Defaults to False.
-        """        
+        """
         self._strict_wrapping = strict_wrapping
         self._api_type_wrapper = api_type_wrapper
 
-    def create_wrapper(self, obj: Any, type_id: str, release_native: Optional[Callable[["CffiData"], None]]) -> 'CffiNativeHandle':
+    def create_wrapper(self, obj: Any, type_id: str, release_native: Optional[Callable[["CffiData"], None]]) -> "CffiNativeHandle":
         """_summary_
 
         Args:
@@ -482,55 +473,49 @@ class CffiWrapperFactory:
 
         Returns:
             CffiNativeHandle: cffi wrapper
-        """        
+        """
         from inspect import signature
-        from typing import get_type_hints
+        # from typing import get_type_hints
         if type_id is None:
             raise ValueError("Type ID provided cannot be None")
         if type_id not in self._api_type_wrapper.keys():
             if self._strict_wrapping:
-                raise ValueError("Type ID {} is unknown".format(type_id))
-            else:
-                return wrap_cffi_native_handle(obj, type_id, release_native)
+                raise ValueError(f"Type ID {type_id} is unknown")
+            return wrap_cffi_native_handle(obj, type_id, release_native)
         wrapper_type = self._api_type_wrapper[type_id]
         if wrapper_type is None:
             if self._strict_wrapping:
                 raise NotImplementedError(
-                    "Python object wrapper for foreign type ID {} is not yet implemented".format(
-                        wrapper_type
-                    )
+                    f"Python object wrapper for foreign type ID {wrapper_type} is not yet implemented",
                 )
-            else:
-                return wrap_cffi_native_handle(obj, type_id, release_native)
-        else:
-            s = signature(wrapper_type)
-            n = len(s.parameters)
-            parameters = [v for k, v in s.parameters.items()]
-            # [<Parameter "handle: Any">, <Parameter "release_native: Callable[[Any], NoneType]">, <Parameter "type_id: Optional[str] = None">, <Parameter "prior_ref_count: int = 0">]
-            if n == 0:
-                raise TypeError(f"Wrapper class '{wrapper_type.__name__}' has no constructor arguments; at least one is required")
-            elif n == 1:
-                return wrapper_type(obj)
-            elif n == 2:
-                if release_native is None:
-                    raise ValueError(f"Wrapper class '{wrapper_type.__name__}' has two constructor arguments; the argument 'release_native' cannot be None")
-                return wrapper_type(obj, release_native)
-            elif n == 3:
-                if release_native is None:
-                    raise ValueError(f"Wrapper class '{type(wrapper_type)}' has three constructor arguments; the argument 'release_native' cannot be None")
-                return wrapper_type(obj, release_native, type_id)
-            elif n == 4:
-                p = parameters[3]
-                # constructor = wrapper_type.__init__
-                # type_hints = get_type_hints(constructor)
-                param_type = p.annotation
-                if param_type is not int:
-                    raise TypeError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must be an integer")
-                if parameters[3].default == parameters[3].empty:
-                    raise ValueError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must have a default value")
-                return wrapper_type(obj, release_native, type_id)
-            else:
-                raise NotImplementedError( f"Wrapper class '{wrapper_type.__name__}' has more than 4 arguments; this is not supported")
+            return wrap_cffi_native_handle(obj, type_id, release_native)
+        s = signature(wrapper_type)
+        n = len(s.parameters)
+        parameters = [v for k, v in s.parameters.items()]
+        # [<Parameter "handle: Any">, <Parameter "release_native: Callable[[Any], NoneType]">, <Parameter "type_id: Optional[str] = None">, <Parameter "prior_ref_count: int = 0">]
+        if n == 0:
+            raise TypeError(f"Wrapper class '{wrapper_type.__name__}' has no constructor arguments; at least one is required")
+        if n == 1:
+            return wrapper_type(obj)
+        if n == 2:
+            if release_native is None:
+                raise ValueError(f"Wrapper class '{wrapper_type.__name__}' has two constructor arguments; the argument 'release_native' cannot be None")
+            return wrapper_type(obj, release_native)
+        if n == 3:
+            if release_native is None:
+                raise ValueError(f"Wrapper class '{type(wrapper_type)}' has three constructor arguments; the argument 'release_native' cannot be None")
+            return wrapper_type(obj, release_native, type_id)
+        if n == 4:
+            p = parameters[3]
+            # constructor = wrapper_type.__init__
+            # type_hints = get_type_hints(constructor)
+            param_type = p.annotation
+            if param_type is not int:
+                raise TypeError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must be an integer")
+            if parameters[3].default == parameters[3].empty:
+                raise ValueError(f"Wrapper class '{type(wrapper_type)}' has four constructor arguments; the last argument 'prior_ref_count' must have a default value")
+            return wrapper_type(obj, release_native, type_id)
+        raise NotImplementedError( f"Wrapper class '{wrapper_type.__name__}' has more than 4 arguments; this is not supported")
 
 
 WrapperCreationFunction = Callable[[Any, str, Callable], DeletableCffiNativeHandle]
