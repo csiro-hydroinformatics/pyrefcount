@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+dependencies:
+  - cffi
+  - mkdocs
+  # - mkdocs-material
+  # - mkdocs-material-extensions
+  - mkdocstrings
+  - mkdocstrings-python
