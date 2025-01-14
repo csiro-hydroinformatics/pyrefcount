@@ -75,6 +75,28 @@ No fixes available (99 hidden fixes can be enabled with the `--unsafe-fixes` opt
 
 These are a bit of a bother. Type annotations, I think, encouraged e.g. the use of `List` instead of `list` years ago. This grates.
 
+### Deploying docs
+
+`make docs-deploy` requires mkdocs for insiders.  
+
+`mkdocs gh-deploy`:
+
+```
+ERROR   -  Config value 'markdown_extensions': Failed to load extension 'callouts'.
+           ModuleNotFoundError: No module named 'callouts'
+```
+
+This was because I had not activated the environment with `. ./.venv/bin/activate`
+
+```sh
+mkdocs build
+mkdocs gh-deploy
+```
+
+```sh
+make release version=1.2.7
+```
+
 ## Release steps
 
 * all UT pass

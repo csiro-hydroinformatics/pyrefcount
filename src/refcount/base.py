@@ -1,4 +1,4 @@
-"""Base classes forreference counting."""
+"""Base classes for reference counting."""
 
 from typing import Any
 
