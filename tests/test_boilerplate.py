@@ -3,10 +3,11 @@
 import refcount
 
 
-def test_has_version() -> None:
-    """Check that the package has an `__version__` attribute."""
-    assert refcount.__version__ is not None
-    assert refcount.__version__ != ""
+# https://discuss.python.org/t/please-make-package-version-go-away/58501
+# def test_has_version() -> None:
+#     """Check that the package has an `__version__` attribute."""
+#     assert refcount.__version__ is not None
+#     assert refcount.__version__ != ""
 
 
 def test_nativehandle() -> None:

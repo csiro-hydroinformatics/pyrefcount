@@ -96,7 +96,7 @@ _message_from_c: str = "<none>"
 
 
 @ut_ffi.callback("void(char *)")
-def called_back_from_c(some_string: str) -> bytes | str:
+def called_back_from_c(some_string: str) -> None:
     """This function is called when uchronia raises an exception.
 
     It sets the global variable ``_exception_txt_raised_uchronia``.

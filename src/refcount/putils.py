@@ -11,7 +11,7 @@ from glob import glob
 from typing import List, Optional, Union
 
 
-def library_short_filename(library_name: str, platform: Optional[str] = None) -> str:
+def library_short_filename(library_name: Optional[str], platform: Optional[str] = None) -> str:
     """Based on the library name, return the platform-specific expected library short file name.
 
     Args:

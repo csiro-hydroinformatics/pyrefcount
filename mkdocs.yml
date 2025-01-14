@@ -25,9 +25,9 @@ nav:
 # defer to gen-files + literate-nav
 - API reference:
   - refcount: reference/
-  - Submodule interop: interop-module.md
-  - Submodule putils: putils-module.md
-  - Submodule base: base-module.md
+  # - Submodule interop: interop-module.md
+  # - Submodule putils: putils-module.md
+  # - Submodule base: base-module.md
 - Development:
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
