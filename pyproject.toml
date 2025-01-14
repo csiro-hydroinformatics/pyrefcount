@@ -28,7 +28,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "cffi>=1.11.5",
+    "cffi>=1.17",
 ]
 
 [project.urls]
