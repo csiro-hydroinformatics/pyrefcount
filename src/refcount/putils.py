@@ -1,4 +1,4 @@
-"""Platform specific helpers to manage locating native dynamic libraries
+"""Platform specific helpers to manage locating native dynamic libraries.
 
 This module hosts features similar to https://github.com/rdotnet/dynamic-interop-dll/blob/main/DynamicInterop/PlatformUtility.cs
 
@@ -12,7 +12,7 @@ from typing import List, Optional, Union
 
 
 def library_short_filename(library_name: str, platform: Optional[str] = None) -> str:
-    """Based on the library name, return the platform-specific expected library short file name
+    """Based on the library name, return the platform-specific expected library short file name.
 
     Args:
         library_name (str): name of the library, for instance 'R', which results out of this
@@ -38,7 +38,8 @@ def library_short_filename(library_name: str, platform: Optional[str] = None) ->
 
 
 def find_full_path(name: str, prefix: Optional[str] = None) -> Union[str, None]:
-    """Find the full path of a library in under the python
+    """Find the full path of a library in under the python.
+
         installation directory, or as devised by ctypes.find_library
 
     Args:
@@ -107,7 +108,7 @@ def find_full_path(name: str, prefix: Optional[str] = None) -> Union[str, None]:
 
 def augment_path_env(
     added_paths: Union[str, List[str]],
-    subfolder: str = None,
+    subfolder: Optional[str] = None,
     to_env: str = "PATH",
     prepend: bool = False,
 ) -> str:
@@ -127,12 +128,9 @@ def augment_path_env(
     if isinstance(added_paths, str):
         added_paths = [added_paths]
     prior_path_env = os.environ.get(to_env)
-    if prior_path_env is not None:
-        prior_paths = prior_path_env.split(path_sep)
-    else:
-        prior_paths = []
+    prior_paths = prior_path_env.split(path_sep) if prior_path_env is not None else []
 
-    def _my_path_join(x, subfolder):  # avoid trailing path separator
+    def _my_path_join(x: str, subfolder: str):  # avoid trailing path separator  # noqa: ANN202
         if subfolder is not None and subfolder != "":
             return os.path.join(x, subfolder)
         return x
@@ -140,13 +138,9 @@ def augment_path_env(
     if subfolder is not None:
         added_paths = [_my_path_join(x, subfolder) for x in added_paths]
     added_paths = [x for x in added_paths if os.path.exists(x)]
-    if prepend:
-        new_paths = added_paths + prior_paths
-    else:
-        new_paths = prior_paths + added_paths
+    new_paths = (added_paths + prior_paths) if prepend else (prior_paths + added_paths)
     # TODO: check for duplicate folders, perhaps.
-    new_env_val = path_sep.join(new_paths)
-    return new_env_val
+    return path_sep.join(new_paths)
 
 
 # TODO: is that of any use still?? refactored out from uchronia and co. , but appears unused.
@@ -195,7 +189,7 @@ def augment_path_env(
 
 
 # # The following is useful, but idiosyncratic. Consider and rethink.
-def _win_architecture(platform: str = None):
+def _win_architecture(platform: Optional[str] = None) -> str:
     platform = sys.platform if platform is None else platform
     if platform == "win32":
         arch = os.environ["PROCESSOR_ARCHITECTURE"]
@@ -206,7 +200,7 @@ def _win_architecture(platform: str = None):
 def build_new_path_env(
     from_env: str = "LIBRARY_PATH",
     to_env: str = "PATH",
-    platform: str = None,
+    platform: Optional[str] = None,
 ) -> str:
     """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 
@@ -225,7 +219,7 @@ def build_new_path_env(
         subfolder = _win_architecture()
         shared_lib_paths_vec = shared_lib_paths.split(path_sep)
         return augment_path_env(shared_lib_paths_vec, subfolder, to_env=to_env)
-    print(
+    print(  # noqa: T201
         f"WARNING: a function was called to look for environment variable '{from_env}' to update the environment variable '{to_env}', but was not found. This may be fine, but if the package fails to load because a native library is not found, this is a likely cause.",
     )
     prior_path_env = os.environ.get(to_env)

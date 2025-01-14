@@ -1,10 +1,10 @@
-"""Base classes forreference counting"""
+"""Base classes forreference counting."""
 
 from typing import Any
 
 
 class ReferenceCounter:
-    """A base class for reference counters
+    """A base class for reference counters.
 
     Attributes:
         reference_count (int): property getter, reference count
@@ -20,7 +20,7 @@ class ReferenceCounter:
 
     @property
     def reference_count(self) -> int:
-        """Get the current reference count"""
+        """Get the current reference count."""
         return self._ref_count
 
     def add_ref(self) -> None:
@@ -55,7 +55,7 @@ class NativeHandle(ReferenceCounter):
             handle (object): The handle (e.g. cffi pointer) to the native resource.
             prior_ref_count (int): the initial reference count. Default 0 if this NativeHandle is sole responsible for the lifecycle of the resource.
         """
-        super(NativeHandle, self).__init__(prior_ref_count)
+        super().__init__(prior_ref_count)
         # TODO checks
         self._finalizing: bool = False
         self._handle: Any = None
@@ -80,6 +80,7 @@ class NativeHandle(ReferenceCounter):
 
     def _is_valid_handle(self, handle: Any) -> bool:
         """Checks a handle on its suitability as a handle for this object.
+
         This method must be overriden by the inheritors.
 
         Args:

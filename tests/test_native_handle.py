@@ -1,4 +1,5 @@
 """Tests for the handling of native pointers via wrappers and utilities."""
+
 import gc
 import os
 import sys
@@ -95,7 +96,7 @@ _message_from_c: str = "<none>"
 
 
 @ut_ffi.callback("void(char *)")
-def called_back_from_c(some_string: str) -> (bytes | str):
+def called_back_from_c(some_string: str) -> bytes | str:
     """This function is called when uchronia raises an exception.
 
     It sets the global variable ``_exception_txt_raised_uchronia``.
@@ -108,7 +109,8 @@ def called_back_from_c(some_string: str) -> (bytes | str):
 
 class CustomCffiNativeHandle(CffiNativeHandle):
     """a custom native resource handle for testing purposes."""
-    def __init__(self, pointer: "CffiData", type_id:str="", prior_ref_count:int=0):
+
+    def __init__(self, pointer: "CffiData", type_id: str = "", prior_ref_count: int = 0):
         """Initialize a reference counter for a resource handle, with an initial reference count."""
         super(CustomCffiNativeHandle, self).__init__(
             pointer,
@@ -123,7 +125,8 @@ class CustomCffiNativeHandle(CffiNativeHandle):
 
 class Dog(CustomCffiNativeHandle):
     """A custom class for testing purposes."""
-    def __init__(self, pointer:"CffiData"=None):
+
+    def __init__(self, pointer: "CffiData" = None):
         """A custom class for testing purposes."""
         if pointer is None:
             pointer = ut_dll.create_dog()
