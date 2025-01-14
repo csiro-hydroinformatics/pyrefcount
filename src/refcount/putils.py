@@ -49,9 +49,9 @@ def find_full_path(name: str, prefix: Optional[str] = None) -> Union[str, None]:
 
     Examples:
         >>> from refcount.putils import *
-        >>> find_full_path('gfortran')
+        >>> find_full_path("gfortran")
         '/home/xxxyyy/anaconda3/envs/wqml/lib/libgfortran.so'
-        >>> find_full_path('R')
+        >>> find_full_path("R")
         'libR.so'
     """
     full_libpath = None
@@ -204,7 +204,9 @@ def _win_architecture(platform: str = None):
 
 
 def build_new_path_env(
-    from_env: str = "LIBRARY_PATH", to_env: str = "PATH", platform: str = None,
+    from_env: str = "LIBRARY_PATH",
+    to_env: str = "PATH",
+    platform: str = None,
 ) -> str:
     """Propose an update to an existing environment variable, based on the path(s) specified in another environment variable. This function is effectively meant to be useful on Windows only.
 

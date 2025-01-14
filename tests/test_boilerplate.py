@@ -1,5 +1,4 @@
-"""Add tests for boilerplate functions, to isolate relatively "trivial", awkward unit tests done to increase coverage.
-"""
+"""Add tests for boilerplate functions, to isolate relatively "trivial", awkward unit tests done to increase coverage."""
 
 import refcount
 
@@ -13,6 +12,7 @@ def test_nativehandle() -> None:
     import pytest
 
     from refcount.base import NativeHandle
+
     rc = NativeHandle()
     with pytest.raises(NotImplementedError):
         rc._is_valid_handle(None)

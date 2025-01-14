@@ -104,7 +104,9 @@ def called_back_from_c(some_string: str):
 class CustomCffiNativeHandle(CffiNativeHandle):
     def __init__(self, pointer, type_id="", prior_ref_count=0):
         super(CustomCffiNativeHandle, self).__init__(
-            pointer, type_id=type_id, prior_ref_count=prior_ref_count,
+            pointer,
+            type_id=type_id,
+            prior_ref_count=prior_ref_count,
         )
 
     def _release_handle(self) -> bool:
@@ -151,6 +153,7 @@ class DogOwner(CustomCffiNativeHandle):
         self.dog.release()
         return True
 
+
 class CrocFiveParameters(CffiNativeHandle):
     def __init__(
         self,
@@ -161,7 +164,9 @@ class CrocFiveParameters(CffiNativeHandle):
         some_fifth_parameter: float = 0.0,
     ):
         super(CrocFiveParameters, self).__init__(
-            pointer, type_id=type_id, prior_ref_count=prior_ref_count,
+            pointer,
+            type_id=type_id,
+            prior_ref_count=prior_ref_count,
         )
         self._release_native_handle = release_native
         self.some_fifth_parameter = some_fifth_parameter
@@ -180,13 +185,16 @@ class CrocFourParameters(CffiNativeHandle):
         prior_ref_count: int = 0,
     ):
         super(CrocFourParameters, self).__init__(
-            pointer, type_id=type_id, prior_ref_count=prior_ref_count,
+            pointer,
+            type_id=type_id,
+            prior_ref_count=prior_ref_count,
         )
         self._release_native_handle = release_native
 
     def _release_handle(self) -> bool:
         self._release_native_handle(self.get_handle())
         return True
+
 
 class CrocFourParametersWrongFourthParameter(CffiNativeHandle):
     def __init__(
@@ -197,7 +205,9 @@ class CrocFourParametersWrongFourthParameter(CffiNativeHandle):
         unsupported_argument_type: Optional[List] = None,
     ):
         super(CrocFourParametersWrongFourthParameter, self).__init__(
-            pointer, type_id=type_id, prior_ref_count=0,
+            pointer,
+            type_id=type_id,
+            prior_ref_count=0,
         )
         self.unsupported_argument_type = unsupported_argument_type
         self._release_native_handle = release_native
@@ -210,14 +220,19 @@ class CrocFourParametersWrongFourthParameter(CffiNativeHandle):
 class CrocThreeParameters(CrocFourParameters):
     def __init__(self, pointer: Any, release_native: Callable, type_id: str = ""):
         super(CrocThreeParameters, self).__init__(
-            pointer, release_native=release_native, type_id=type_id, prior_ref_count=0,
+            pointer,
+            release_native=release_native,
+            type_id=type_id,
+            prior_ref_count=0,
         )
 
 
 class CrocTwoParameters(CrocThreeParameters):
     def __init__(self, pointer: Any, release_native: Callable):
         super(CrocTwoParameters, self).__init__(
-            pointer, release_native=release_native, type_id="CROC_PTR",
+            pointer,
+            release_native=release_native,
+            type_id="CROC_PTR",
         )
 
 
@@ -376,14 +391,10 @@ def test_wrapper_helper_functions():
 
     for func in [cffi_arg_error_external_obj_type, type_error_cffi]:
         msg = func(1, "")
-        assert (
-            msg
-            == "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'"
-        )
+        assert msg == "Expected a 'CffiNativeHandle' but instead got object of type '<class 'int'>'"
         msg = func(dog, "cat")
         assert (
-            msg
-            == "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'"
+            msg == "Expected a 'CffiNativeHandle' with underlying type id 'cat' but instead got one with type id 'dog'"
         )
         msg = func(None, "cat")
         assert msg == "Expected a 'CffiNativeHandle' but instead got 'None'"
@@ -463,7 +474,9 @@ def test_cffi_wrapper_factory():
         wf_strict.create_wrapper(pointer_croc, "CROC_PTR", ut_dll.release)
     # Test the case where we have a pointer but no identified python wrapper type, but we are not strict ad use a generic wrapper.
     anonymous_croc = wf_not_strict.create_wrapper(
-        pointer_croc, "CROC_PTR", ut_dll.release,
+        pointer_croc,
+        "CROC_PTR",
+        ut_dll.release,
     )
     assert isinstance(anonymous_croc, DeletableCffiNativeHandle)
     del anonymous_croc
@@ -498,7 +511,9 @@ def test_cffi_wrapper_factory_various_ctors():
     ):
         _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=None)
     croc_two = wf_strict.create_wrapper(
-        pointer_croc, "CROC_PTR", release_native=ut_dll.release,
+        pointer_croc,
+        "CROC_PTR",
+        release_native=ut_dll.release,
     )
     assert isinstance(croc_two, CrocTwoParameters)
     assert croc_two.type_id == "CROC_PTR"
@@ -517,7 +532,9 @@ def test_cffi_wrapper_factory_various_ctors():
         _ = wf_strict.create_wrapper(pointer_croc, "CROC_PTR", release_native=None)
 
     croc_three = wf_strict.create_wrapper(
-        pointer_croc, "CROC_PTR", release_native=ut_dll.release,
+        pointer_croc,
+        "CROC_PTR",
+        release_native=ut_dll.release,
     )
     assert isinstance(croc_three, CrocThreeParameters)
     assert croc_three.type_id == "CROC_PTR"
@@ -537,7 +554,9 @@ def test_cffi_wrapper_factory_various_ctors():
     #         pointer_croc, "CROC_PTR", release_native=ut_dll.release
     #     )
     croc_four = wf_strict.create_wrapper(
-        pointer_croc, "CROC_PTR", release_native=ut_dll.release,
+        pointer_croc,
+        "CROC_PTR",
+        release_native=ut_dll.release,
     )
     assert isinstance(croc_four, CrocFourParameters)
     assert croc_four.type_id == "CROC_PTR"

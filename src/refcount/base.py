@@ -1,5 +1,4 @@
-"""Base classes forreference counting
-"""
+"""Base classes forreference counting"""
 
 from typing import Any
 
@@ -39,6 +38,7 @@ class ReferenceCounter:
         manage cases where one native handle wrapper uses another wrapper (and its underlying resource).
         """
         self._ref_count = self._ref_count - 1
+
 
 class NativeHandle(ReferenceCounter):
     """A base class for wrappers around otherwise "unmanaged" resources e.g. in a native library.

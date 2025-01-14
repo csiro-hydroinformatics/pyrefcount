@@ -67,26 +67,26 @@ def test_prepend_path_env():
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmp = Path(tmpdirname)
-        subfolder = "64" # a hack to be sure the "sub"folder does indeed exist...
-        p_1, p_2 = (str(tmp /  "path"), str(tmp/ "nonexisting"/ "path"))
+        subfolder = "64"  # a hack to be sure the "sub"folder does indeed exist...
+        p_1, p_2 = (str(tmp / "path"), str(tmp / "nonexisting" / "path"))
         valid_subfolder = tmp / "path" / subfolder
         valid_subfolder.mkdir(parents=True, exist_ok=True)
-        new_path = augment_path_env(added_paths = p_1, subfolder = subfolder, to_env = "PATH", prepend=True)
+        new_path = augment_path_env(added_paths=p_1, subfolder=subfolder, to_env="PATH", prepend=True)
         assert new_path.startswith(os.path.join(p_1, subfolder))
         # and if both, only the one that worked is added
         p = [p_1, p_2]
-        new_path = augment_path_env(added_paths = p, subfolder = subfolder, to_env = "PATH", prepend=True)
+        new_path = augment_path_env(added_paths=p, subfolder=subfolder, to_env="PATH", prepend=True)
         assert new_path.startswith(os.path.join(p_1, subfolder))
         assert new_path.find(os.path.join("nonexisting", "path")) == -1
 
         # UT coverage Cover the case if there is no prior environment variable
-        new_path = augment_path_env(added_paths = p, subfolder = subfolder, to_env = "ENV_NOT_ALREADY", prepend=False)
+        new_path = augment_path_env(added_paths=p, subfolder=subfolder, to_env="ENV_NOT_ALREADY", prepend=False)
         assert new_path.startswith(os.path.join(p_1, subfolder))
         assert new_path.find(os.path.join("nonexisting", "path")) == -1
 
         # UT coverage Cover the case if there is no prior environment variable,
         # and there is no subfolder
-        new_path = augment_path_env(added_paths = p, subfolder = "", to_env = "ENV_NOT_ALREADY", prepend=False)
+        new_path = augment_path_env(added_paths=p, subfolder="", to_env="ENV_NOT_ALREADY", prepend=False)
         assert new_path.startswith(p_1)
         assert new_path.find(os.path.join("nonexisting", "path")) == -1
 
@@ -94,19 +94,22 @@ def test_prepend_path_env():
 def test_win_architecture():
     # for the sake of UT coverage:
     from refcount.putils import _win_architecture
+
     warch = _win_architecture()
     if sys.platform == "win32":
         assert warch == "64" or warch == "32"
     else:
         assert warch == ""
 
+
 def test_build_new_path_env():
     import tempfile
     from pathlib import Path
+
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmp = Path(tmpdirname)
-        subfolder = "64" # a hack to be sure the "sub"folder does indeed exist...
-        p_1 = str(tmp /  "path")
+        subfolder = "64"  # a hack to be sure the "sub"folder does indeed exist...
+        p_1 = str(tmp / "path")
         valid_subfolder = tmp / "path" / subfolder
         valid_subfolder.mkdir(parents=True, exist_ok=True)
         os.environ["TEST_PATH_ENV"] = p_1
@@ -129,12 +132,14 @@ def test_build_new_path_env():
         s = build_new_path_env(from_env="INVALID_TEST_PATH_ENV", to_env="INVALID_PATH", platform=sys.platform)
         assert s == ""
 
+
 def test_new_path_env_warning_msg():
     # unit test for issue #16
     path = os.environ.get("PATH", None)
     assert path is not None
     new_path = build_new_path_env(from_env="UNLIKELY_TEST_PATH_ENV", to_env="PATH", platform=sys.platform)
     assert new_path == path
+
 
 if __name__ == "__main__":
     test_build_new_path_env()
