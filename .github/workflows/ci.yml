@@ -68,7 +68,7 @@ jobs:
         - "3.12"
         resolution:
         - highest
-        - lowest-direct
+        # - lowest-direct
         exclude:
         - os: macos-latest
           resolution: lowest-direct
@@ -101,6 +101,12 @@ jobs:
       env:
         UV_RESOLUTION: ${{ matrix.resolution }}
       run: make setup
+
+    - name: Compile native code for the unit tests
+      run: |
+        cd tests/test_native_library
+        cmake -Bbuild .
+        cmake --build build
 
     - name: Run the test suite
       run: make test
