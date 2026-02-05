@@ -29,6 +29,7 @@ classifiers = [
 ]
 dependencies = [
     "cffi>=1.17",
+    "typing-extensions"
 ]
 
 [project.urls]
