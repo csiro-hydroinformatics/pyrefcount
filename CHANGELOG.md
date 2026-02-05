@@ -6,6 +6,95 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [1.2.9](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/1.2.9) - 2026-02-05
+
+<small>[Compare with 1.2.8](https://github.com/csiro-hydroinformatics/pyrefcount/compare/1.2.8...1.2.9)</small>
+
+## [1.2.8](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/1.2.8) - 2026-02-05
+
+<small>[Compare with v1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.7...1.2.8)</small>
+
+### Bug Fixes
+
+- add typing-extensions as a dependency for backward compat (backport to py pre 3.10) ([00313b0](https://github.com/csiro-hydroinformatics/pyrefcount/commit/00313b062a6b886aedc60574861cfe7b5c6f6012) by J-M).
+
+## [v1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.7) - 2025-01-14
+
+<small>[Compare with 1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/compare/1.2.7...v1.2.7)</small>
+
+### Build
+
+- notes about publishing docs and packages ([1606c8f](https://github.com/csiro-hydroinformatics/pyrefcount/commit/1606c8f25728e265f87377bccfde8c54930f2b00) by J-M).
+
+## [1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/1.2.7) - 2025-01-14
+
+<small>[Compare with v1.2.6](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.6...1.2.7)</small>
+
+### Build
+
+- update cffi dependency version to the latest. Building older cffi fails on GH actions ([e4e603d](https://github.com/csiro-hydroinformatics/pyrefcount/commit/e4e603da271d6b955eae5baacb9362fe7c519a7e) by J-M).
+- make check passes ([ccf1a18](https://github.com/csiro-hydroinformatics/pyrefcount/commit/ccf1a181e096446c595dc315bc2e2c3e35a18fbf) by J-M).
+- make check-quality passes ([0b387e3](https://github.com/csiro-hydroinformatics/pyrefcount/commit/0b387e352f6f9b8cd27b4537fec4bcbbbb69a714) by J-M).
+- ruff rules disabled for now for unit test files ([c2674aa](https://github.com/csiro-hydroinformatics/pyrefcount/commit/c2674aad684b9ac836144793b03af9a75c79ad0c) by J-M).
+- apply format with make format ([2a165f5](https://github.com/csiro-hydroinformatics/pyrefcount/commit/2a165f5af97cd39fbbc857fdd2061d194c072adf) by J-M).
+- move files under src and apply safe ruff fixes ([2912222](https://github.com/csiro-hydroinformatics/pyrefcount/commit/29122229d2fbd94e32b9c7e7912afa5f7f94a8f5) by J-M).
+
+## [v1.2.6](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.6) - 2024-11-05
+
+<small>[Compare with v1.2.5](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.5...v1.2.6)</small>
+
+## [v1.2.5](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.5) - 2024-11-01
+
+<small>[Compare with v1.2.0](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.0...v1.2.5)</small>
+
+## [v1.2.0](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.0) - 2023-01-25
+
+<small>[Compare with v1.1.1](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.1.1...v1.2.0)</small>
+
+## [v1.1.1](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.1.1) - 2022-08-19
+
+<small>[Compare with v1.1.0](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.1.0...v1.1.1)</small>
+
+## [v1.1.0](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.1.0) - 2022-08-19
+
+<small>[Compare with v1.0.0](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.0.0...v1.1.0)</small>
+
+## [v1.0.0](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.0.0) - 2022-08-13
+
+<small>[Compare with v0.9.3](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v0.9.3...v1.0.0)</small>
+
+## [v0.9.3](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v0.9.3) - 2022-01-24
+
+<small>[Compare with 0.9.1](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.9.1...v0.9.3)</small>
+
+## [0.9.1](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.9.1) - 2021-04-07
+
+<small>[Compare with 0.9](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.9...0.9.1)</small>
+
+## [0.9](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.9) - 2021-03-09
+
+<small>[Compare with 0.8](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.8...0.9)</small>
+
+## [0.8](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.8) - 2021-01-11
+
+<small>[Compare with 0.6.2](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.6.2...0.8)</small>
+
+## [0.6.2](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.6.2) - 2019-01-03
+
+<small>[Compare with 0.6.0](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.6.0...0.6.2)</small>
+
+## [0.6.0](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.6.0) - 2019-01-02
+
+<small>[Compare with 0.5.1](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.5.1...0.6.0)</small>
+
+## [0.5.1](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.5.1) - 2018-12-19
+
+<small>[Compare with 0.5](https://github.com/csiro-hydroinformatics/pyrefcount/compare/0.5...0.5.1)</small>
+
+## [0.5](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/0.5) - 2018-12-19
+
+<small>[Compare with first commit](https://github.com/csiro-hydroinformatics/pyrefcount/compare/3bd3f85c8cb55205c986a138c0b3806f711e05ad...0.5)</small>
+
 ## [v1.2.8](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.8) - 2026-02-05
 
 <small>[Compare with v1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.7...v1.2.8)</small>
