@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v1.2.8](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.8) - 2026-02-05
+
+<small>[Compare with v1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.7...v1.2.8)</small>
+
+### Bug Fixes
+
+- add typing-extensions as a dependency for backward compat (backport to py pre 3.10) ([00313b0](https://github.com/csiro-hydroinformatics/pyrefcount/commit/00313b062a6b886aedc60574861cfe7b5c6f6012) by J-M).
+
 ## [v1.2.7](https://github.com/csiro-hydroinformatics/pyrefcount/releases/tag/v1.2.7) - 2025-01-14
 
 <small>[Compare with v1.2.6](https://github.com/csiro-hydroinformatics/pyrefcount/compare/v1.2.6...v1.2.7)</small>
